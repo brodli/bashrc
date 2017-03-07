@@ -11,8 +11,14 @@ function settitle ()
 # BASIC STUFF
 # ----------------------------------
 
-# If not running interactively, don't do anything
-[[ "$-" != *i* ]] && return
+#for i3
+export TERMINAL="gnome-terminal"
+
+PATH=/opt/texbin:$PATH:$HOME/.local/bin:$HOME/bin:/usr/local/bin:/home/M/Scripts/Customization/
+export PATH
+
+export VISUAL=nano
+export EDITOR="$VISUAL"
 
 # don't exit terimal on ctrl+D EOF
 set -o ignoreeof
@@ -91,9 +97,19 @@ alias path="ls -d $PWD/*"
 # show hidden files too
 alias la='ls -A'
 #show file size, permissions, date, etc.
-alias ll="ls -alhvs"
-#show only directories. ld is taken by the C linker.
-alias l.="ls -d .*"
+function ll() 
+{
+    git -C $1 branch &> /dev/null
+    est="$?"
+    if [[ $est -ne "128" ]]; then
+        echo "git branch structure:"
+        git -C $1 branch
+    fi
+    echo "ls -alvhs:"
+    ls -alvhs $1
+}
+
+#alias ll="ls -alhvs"
 #sort files by size, showing biggest at the bottom
 alias sizesort="ls -alSr | tr -s ' ' | cut -d ' ' -f 5,9"
 # tree of directories
@@ -112,6 +128,8 @@ alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
 
+alias mntwin='sudo mount -t ntfs /dev/nvme0n1p3 /mnt/'
+
 # make directory and any parent directories needed
 alias mkdir='mkdir -p'
 
@@ -123,20 +141,19 @@ alias .....="cd ../../../.."
 # typo fix
 alias cd..='cd ..'
 
+alias cat="pygmentize -g"
+
 #use to get current directory with spaces escaped
 alias qwd='printf "%q\n" "$(pwd)"'
 
 # stop typing so much when package managing
-alias apt-get="sudo apt-get install"
-alias aptitude="aptitude search"
-alias install='sudo apt-get install'
-alias remove='sudo apt-get remove'
-alias update='sudo apt-get update'
-alias upgrade='sudo apt-get update && sudo apt-get upgrade'
+alias install='sudo dnf install'
+alias remove='sudo dnf remove'
+alias update='sudo dnf update'
+alias upgrade='sudo dnf update && sudo apt-get upgrade'
 
 # make common commands easier to read for humans
 alias diff="colordiff"
-alias mount="mount |column -t"
 alias df="df -Tha --total"
 alias du="du -ach | sort -h"
 alias free="free -mth"
@@ -149,8 +166,11 @@ alias dt='date "+%F %T"'
 alias reboot="sudo /sbin/reboot"
 alias shutdown="sudo /sbin/shutdown"
 
-#search command history for a string
+# search command history for a string
 alias histg="history | grep"
+
+# custom cmatrix
+alias cmatrix="cmatrix -bC yellow"
 
 # search processes (find PID easily)
 alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
@@ -159,9 +179,6 @@ alias psf="ps auxf"
 
 #given a PID, intercept the stdout and stderr
 alias intercept="sudo strace -ff -e trace=write -e write=1,2 -p" 
-
-# replace top with htop
-alias top="htop"
 
 # make wget continue downloads if inturrupted
 alias wget="wget -c"
@@ -175,6 +192,8 @@ alias webcam="mplayer tv:// -tv driver=v4l2:width=640:height=480:device=/dev/vid
 # super convenient HTTP server
 # with python 3, it will be "python3 -m http.server"
 alias http="python -m SimpleHTTPServer"
+
+alias hw="ssh -X masnes01@homework.cs.tufts.edu"
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -192,7 +211,7 @@ alias setc='alias c="cd `qwd`"'
 alias setc1='alias c1="cd `qwd`"'
 alias setc2='alias c2="cd `qwd`"'
 alias setc3='alias c3="cd `qwd`"'
-alias setc4='alias c4=cd `qwd`"'
+alias setc4='alias c4="cd `qwd`"'
 alias setc5='alias c5="cd `qwd`"'
 alias setc6='alias c6="cd `qwd`"'
 alias setc7='alias c7="cd `qwd`"'
@@ -204,15 +223,6 @@ alias savec='alias|grep -e "alias c\([0-9]\|=\)"|grep -v "alias setc" > ~/.bookm
 alias lma='alias|grep -e "alias c\([0-9]\|=\)"|grep -v "alias setc"|sed "s/alias //"'
 touch ~/.bookmarks
 source ~/.bookmarks
-
-# when using mkdir, automatically cd into folder after creating it
-function mkdircd()
-{
-        mkdir $1 && cd $1
-}
-alias mkdir=mkdircd
-
-# ---------------------------
 # PROMPT APPEARANCE (PS1)
 # ---------------------------
 
@@ -435,12 +445,4 @@ topten() { history | awk '{print $2}' | awk 'BEGIN {FS="|"}{print $1}' | sort | 
 # uses alias "dt" for date things
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo `dt` `pwd` $$ $USER \
                "$(history 1)" >> ~/.bash_eternal_history'
-
-# Welcome to the terminal
-function welcome() {
-    figlet -f standard "Hello Matt!"
-    figlet -f standard "@ `date +%I:%M`";    
-    #toilet -f mono9 --gay "Hello Matt!@ `date +%I:%M`";
-}
-welcome;
 
