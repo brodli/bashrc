@@ -14,7 +14,8 @@ function settitle ()
 #for i3
 export TERMINAL="gnome-terminal"
 
-PATH=/opt/texbin:$PATH:$HOME/.local/bin:$HOME/bin:/usr/local/bin:/home/M/Scripts/Customization/
+PATH="/usr/local/bin:/opt/texbin:/usr/lib64/qt-3.3/bin:/usr/lib64/ccache:/usr/local/sbin:/usr/bin:/usr/sbin:/home/M/.local/bin:/home/M/bin:/home/M/Scripts/Customization/"
+
 export PATH
 
 export VISUAL=nano
@@ -97,17 +98,7 @@ alias path="ls -d $PWD/*"
 # show hidden files too
 alias la='ls -A'
 #show file size, permissions, date, etc.
-function ll() 
-{
-    git -C $1 branch &> /dev/null
-    est="$?"
-    if [[ $est -ne "128" ]]; then
-        echo "git branch structure:"
-        git -C $1 branch
-    fi
-    echo "ls -alvhs:"
-    ls -alvhs $1
-}
+alias ll='ls -alvhs'
 
 #alias ll="ls -alhvs"
 #sort files by size, showing biggest at the bottom
@@ -141,7 +132,7 @@ alias .....="cd ../../../.."
 # typo fix
 alias cd..='cd ..'
 
-alias cat="pygmentize -g"
+alias cat="pygmentize"
 
 #use to get current directory with spaces escaped
 alias qwd='printf "%q\n" "$(pwd)"'
@@ -159,7 +150,7 @@ alias du="du -ach | sort -h"
 alias free="free -mth"
 
 # easy time and date printing
-alias now="date +"%T""
+alias now='date +"%T"'
 alias dt='date "+%F %T"'
 
 # easy shutdown/reboot
@@ -281,6 +272,7 @@ PY6='\[\033[48;5;228m\]'
 PY="${PY1} ${PY2} ${PY3} ${PY4} ${PY5} ${PY6} ${DEFAULT}"
 
 
+PY3F='\[\033[38;5;210m\]'
 #yellowish color used for username
 PY5F='\[\033[38;5;222m\]'
 #dark purple used for date and $
@@ -300,14 +292,28 @@ function lastexit()
 {
         EXITSTATUS="$?"
         if [ $EXITSTATUS -eq 0 ];
-        then echo -ne ${ECHOG}$EXITSTATUS; 
-        else echo -ne ${ECHOR}$EXITSTATUS; 
+        then echo -ne "${ECHOG}$EXITSTATUS"; 
+        else echo -ne "${ECHOR}$EXITSTATUS"; 
+        fi;
+}
+
+function gitbranch()
+{
+        git rev-parse --abbrev-ref HEAD 2> /dev/null 1> /dev/null
+        if [[ "$?" -eq "0" ]]; then
+            str="⎇ $(git rev-parse --abbrev-ref HEAD | tr -d '$' | tr -d '`')"
+            # while read c; do
+	    #     if [[ "${c}" == '$' ]]; then
+	    # 		    return
+	    #     fi;
+	    # done < <(echo "${str}" | sed -e 's/\(.\)/\1\n/g')
+	    echo "${str}"
         fi;
 }
 
 #This refreshes the prompt after every command
 setprompt() {
-        PS1="${PY}${PP2F} \T ${B}${PP5F}(${PY5F}\u${PP5F}) `lastexit` ${PY5F}\w ${DEFAULT}${N}${PP2F}\$\n${PP}${B}${PP5F} ➜ "
+        PS1="${PY}${PP2F} \T ${B}${PP5F}(${PY5F}\u${PP5F}) $(lastexit) ${PY5F}\w ${PY3F}$(gitbranch) ${DEFAULT}${N}${PP2F}\$\n${PP}${B}${PP5F} ➜ "
         #trap is necessary because otherwise everything becomes pink
         trap 'echo -ne "\e[0m"' DEBUG
 }
