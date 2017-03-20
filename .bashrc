@@ -333,7 +333,7 @@ function lastexit()
         EXITSTATUS="$1"
         if [ $EXITSTATUS -eq 0 ]; 
         then echo "${ESG}${EXITSTATUS}"; 
-        else echo "${ESR}${EXITSTATUS}"; 
+        else echo "${RED}${EXITSTATUS}"; 
         fi;
 }
 function lastexitcolor()
@@ -394,10 +394,10 @@ function timer_stop() {
 #setprompt > 
 ac='↣'
 function preexec() {
-    if [[ -z "$this" ]]; then
+    if [[ -z "$this" ]] && [[ "$BASH_COMMAND" != 'setprompt' ]]; then
         this=$BASH_COMMAND
         this="$(echo "$this" | sed 's/this=//g')"
-    elif [[ "$BASH_COMMAND" != "setprompt" ]]; then
+    elif [[ "$BASH_COMMAND" != 'setprompt' ]] && [[ "$BASH_COMMAND" != 'PROMPT_COMMAND=setprompt' ]]; then
         this+=" ${ac} "$BASH_COMMAND
         this="$(echo "$this" | sed 's/this+=" ${ac} "//g')"
     fi
@@ -414,6 +414,7 @@ function bat() {
     f=$(\cat /sys/class/power_supply/BAT0/charge_full)
     c=$(\cat /sys/class/power_supply/BAT0/charge_now)
     echo "$(bc -l <<< "$c/$f * 100")" | cut -c1-5
+    #echo 10
 }
 
 #This refreshes the prompt after every command
@@ -435,8 +436,17 @@ function setprompt() {
         uc="$PY6F$PP0"
     fi;
 
-     PS1="${lc}╭─${fir} ${uc}\u${DEFAULT}${PP2F}@${uc}${hc}\H${DEFAULT} ${PY5F}\j${PP2F}j !${PY4F}\!${PP2F}/${PY4F}\# ${PY3F}$(bat)${PP2F}% ${PY2F}\s ${PP2F}v${PY2F}\V ${PY1F}\@ \n"
-    PS1+="${lc}⎬─${sec} ${PY4F}${this} ${PY5F}runtime: \[${runt}\] ${PY6F}exit: ${le}\n"
+    batc="${PY3F}"
+    if [[ $(bat | sed 's/\..*//') -lt 15 ]]; then
+        batc="${RED}"
+    fi;
+
+    if [[ ! -z "$this" ]]; then
+        this+=' '
+    fi
+
+     PS1="${lc}╭─${fir} ${uc}\u${DEFAULT}${PP2F}@${uc}${hc}\H${DEFAULT} ${PY5F}\j${PP2F}j !${PY4F}\!${PP2F}/${PY4F}\# ${batc}$(bat)${PP2F}% ${PY2F}\s ${PP2F}v${PY2F}\V ${PY1F}\@ \n"
+    PS1+="${lc}⎬─${sec} ${PY4F}${this}${PY5F}runtime: \[${runt}\] ${PY6F}exit: ${le}\n"
     PS1+="${lc}⎬─${fir} ${PY6F}\w${PY2F}\[$(gitbranch)\] ${PP2F}\\$\n"
     PS1+="  \r${lc}╰┄┈◽${uc}\[$(getunicodec)\011\]${DEFAULT}${PP5F}◈▷ "
     unset this
