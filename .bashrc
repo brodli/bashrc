@@ -432,7 +432,7 @@ function setprompt() {
      PS1="${lc}╭─${fir} ${uc}\u${DEFAULT}${PP2F}@${uc}${hc}\H${DEFAULT} ${PY5F}\j${PP2F}j !${PY4F}\!${PP2F}/${PY3F}\# ${PY2F}\s v\V ${PY1F}\@ \n"
     PS1+="${lc}⎬─${sec} ${PY4F}${this} ${PY5F}runtime: \[${runt}\] ${PY6F}exit: ${le}\n"
     PS1+="${lc}⎬─${fir} ${PY6F}\w${PY2F}\[$(gitbranch)\] ${PP2F}\\$\n"
-    PS1+="   \r${lc}╰┄┈◽${uc}\[$(getunicodec)\011\]${DEFAULT}${PP5F}◈▷ "
+    PS1+="  \r${lc}╰┄┈◽${uc}\[$(getunicodec)\011\]${DEFAULT}${PP5F}◈▷ "
     unset this
     echo "$(dt) $(pwd) $$ $USER $(history 1)" >> ~/.bash_eternal_history
 
