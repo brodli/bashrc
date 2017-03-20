@@ -1,3 +1,4 @@
+#!/bin/bash
 function settitle () 
 { 
         echo -ne "\e]2;$@\a\e]1;$@\a"; 
@@ -35,9 +36,6 @@ shopt -s cdspell
 shopt -s checkwinsize
 shopt -s autocd
 
-# don't put duplicate lines or lines starting with space in the history.
-HISTCONTROL=ignoreboth
-
 # append to the history file, don't overwrite it
 shopt -s histappend
 
@@ -45,8 +43,8 @@ shopt -s histappend
 # make sure this isn't overrided by the OS (Ubuntu does this)
 unset HISTFILESIZE
 unset HISTSIZE
-HISTSIZE=100000
-HISTFILESIZE=200000
+HISTSIZE=1000
+HISTFILESIZE=1000
 
 # -------------------------------
 # MISC SETUP
@@ -99,13 +97,13 @@ alias path="ls -d $PWD/*"
 alias la='ls -A'
 #show file size, permissions, date, etc.
 alias ll='ls -alvhs'
-
-#alias ll="ls -alhvs"
+alias l.='ls -d */'
 #sort files by size, showing biggest at the bottom
 alias sizesort="ls -alSr | tr -s ' ' | cut -d ' ' -f 5,9"
 # tree of directories
 alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
 # typo correction
+alias ls='ls --color=auto -l'
 alias l='ls'
 alias sl="ls"
 alias l="ls"
@@ -123,6 +121,8 @@ alias mntwin='sudo mount -t ntfs /dev/nvme0n1p3 /mnt/'
 
 # make directory and any parent directories needed
 alias mkdir='mkdir -p'
+
+alias sb='source ~/.bashrc'
 
 # easier directory jumping
 alias ..="cd .."
@@ -157,16 +157,13 @@ alias dt='date "+%F %T"'
 alias reboot="sudo /sbin/reboot"
 alias shutdown="sudo /sbin/shutdown"
 
-# search command history for a string
-alias histg="history | grep"
-
 # custom cmatrix
 alias cmatrix="cmatrix -bC yellow"
 
 # search processes (find PID easily)
 alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
 # show all processes
-alias psf="ps auxf"
+alias psf="ps auxfww"
 
 #given a PID, intercept the stdout and stderr
 alias intercept="sudo strace -ff -e trace=write -e write=1,2 -p" 
@@ -175,10 +172,7 @@ alias intercept="sudo strace -ff -e trace=write -e write=1,2 -p"
 alias wget="wget -c"
 
 # show current IP address
-alias ip="curl http://ipecho.net/plain; echo"
-
-# pop up a small window with the webcam in it, press s to screenshot
-alias webcam="mplayer tv:// -tv driver=v4l2:width=640:height=480:device=/dev/video0 -fps 15 -vf screenshot"
+alias ip="ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'"
 
 # super convenient HTTP server
 # with python 3, it will be "python3 -m http.server"
@@ -192,28 +186,53 @@ alias hw="ssh -X masnes01@homework.cs.tufts.edu"
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Show active http connections
-alias ports='echo -e "\n${BRed}Open connections :$NC "; netstat -pan --inet;'
+alias ports='echo -e "\n${BRED}Open connections :$NC "; netstat -pan --inet;'
 
 # directory bookmarks
 # loads bookmarks from file in home directory
 alias load='sh .bookmarks'
 # aliases to set and go to bookmarks
-alias setc='alias c="cd `qwd`"'
-alias setc1='alias c1="cd `qwd`"'
-alias setc2='alias c2="cd `qwd`"'
-alias setc3='alias c3="cd `qwd`"'
-alias setc4='alias c4="cd `qwd`"'
-alias setc5='alias c5="cd `qwd`"'
-alias setc6='alias c6="cd `qwd`"'
-alias setc7='alias c7="cd `qwd`"'
-alias setc8='alias c8="cd `qwd`"'
-alias setc9='alias c9="cd `qwd`"'
+alias setc='alias c="\cd $(qwd)"'
+alias setc1='alias c1="\cd $(qwd)"'
+alias setc2='alias c2="\cd $(qwd)"'
+alias setc3='alias c3="\cd $(qwd)"'
+alias setc4='alias c4="\cd $(qwd)"'
+alias setc5='alias c5="\cd $(qwd)"'
+alias setc6='alias c6="\cd $(qwd)"'
+alias setc7='alias c7="\cd $(qwd)"'
+alias setc8='alias c8="\cd $(qwd)"'
+alias setc9='alias c9="\cd $(qwd)"'
 # save bookmarks for later sessions
 alias savec='alias|grep -e "alias c\([0-9]\|=\)"|grep -v "alias setc" > ~/.bookmarks'
 # list all bookmarks
-alias lma='alias|grep -e "alias c\([0-9]\|=\)"|grep -v "alias setc"|sed "s/alias //"'
+alias lma='alias|grep -e "alias c\([0-9]\|=\)"|grep -v "alias setc" | sed "s/alias //"'
 touch ~/.bookmarks
 source ~/.bookmarks
+
+function cdf() {
+    \cd "$@"
+    ls
+}
+
+alias cd=cdf
+
+function checkoutfun() {
+    git checkout $1
+    ls
+}
+
+alias checkout=checkoutfun
+
+alias branch='git branch'
+alias push='git push'
+alias pull='git pull'
+alias commit='git commit'
+alias add='git add'
+alias status='git status'
+alias stash='git stash'
+alias init='git init'
+alias clone='git clone'
+
 # PROMPT APPEARANCE (PS1)
 # ---------------------------
 
@@ -229,7 +248,7 @@ source ~/.bookmarks
 # also see https://stackoverflow.com/questions/15682537/ansi-color-specific-rgb-sequence-bash
 
 # Default 16 colors
- DRED='\[\033[38;5;01m\]'
+DRED='\[\033[38;5;01m\]'
 DGREEN='\[\033[38;5;02m\]'
 DYELLOW='\[\033[38;5;03m\]'
 DBLUE='\[\033[38;5;04m\]'
@@ -245,12 +264,22 @@ PURP='\[\033[38;5;13m\]'
 CYAN='\[\033[38;5;14m\]'
 WHITE='\[\033[38;5;15m\]'
 BLACK='\[\033[38;5;16m\]'
+BRED='\[\033[38;5;203m\]'
 # white
 DEFAULT='\[\033[00m\]'
 
 # bold and normal text
 B='\[\e[1m\]'
 N='\[\e[21m\]'
+
+xc=' '
+unicode='×Ø÷±ÿłŊŋƜɨɷɸΔΣΦΨΩαβγδεζηθκλμνξπρστυφχψωᴀᴃᴕᴖ⚗🗺🌀🌁🌂🌃🌄🌅🌆🌇🌈🌉🌊🌋🌌🌍🌎🌏🌐🌑🌒🌓🌔🌕🌖🌗🌘🌙🌚🌛🌜🌝🌞🌟🌠🌡🌢🌣🌤🌥🌦🌧🌨🌩🌪🌫🌬🌭🌮🌯🌰🌱🌲🌳🌴🌵🌶🌷🌸🌹🌺🌻🌼🌽🌾🌿🍀🍁🍂🍃🍄🍅🍆🍇🍈🍉🍊🍋🍌🍍🍎🍏🍐🍑🍒🍓🍔🍕🍖🍗🍘🍙🍚🍛🍜🍝🍞🍟🍠🍡🍢🍣🍤🍥🍦🍧🍨🍩🍪🍫🍬🍭🍮🍯🍰🍱🍲🍳🍴🍵🍶🍷🍸🍹🍺🍻🍼🍽🍾🍿🎀🎁🎂🎃🎄🎅🎆🎇🎈🎉🎊🎋🎌🎍🎎🎏🎐🎑🎒🎓🎔🎕🎖🎗🎘🎙🎚🎛🎜🎝🎞🎟🎠🎡🎢🎣🎤🎥🎦🎧🎨🎩🎪🎫🎬🎭🎮🎯🎰🎱🎲🎳🎴🎵🎶🎷🎸🎹🎺🎻🎼🎽🎾🎿🏀🏁🏂🏃🏄🏅🏆🏇🏈🏉🏊🏋🏌🏍🏎🏏🏐🏑🏒🏓🏔🏕🏖🏗🏘🏙🏚🏛🏜🏝🏞🏟🏠🏡🏢🏣🏤🏥🏦🏧🏨🏩🏪🏫🏬🏭🏮🏯🏰🏱🏲🏳🏴🏵🏶🏷🏸🏹🏺🏻🏼🏽🏾🏿🐀🐁🐂🐃🐄🐅🐆🐇🐈🐉🐊🐋🐌🐍🐎🐏🐐🐑🐒🐓🐔🐕🐖🐗🐘🐙🐚🐛🐜🐝🐞🐟🐠🐡🐢🐣🐤🐥🐦🐧🐨🐩🐪🐫🐬🐭🐮🐯🐰🐱🐲🐳🐴🐵🐶🐷🐸🐹🐺🐻🐼🐽🐾🐿👀👁👂👃👄👅👆👇👈👉👊👋👌👍👎👏👐👑👒👓👔👕👖👗👘👙👚👛👜👝👞👟👠👡👢👣👤👥👦👧👨👩👪👫👬👭👮👯👰👱👲👳👴👵👶👷👸👹👺👻👼👽👾👿💀💁💂💃💄💅💆💇💈💉💊💋💌💍💎💏💐💑💒💓💔💕💖💗💘💙💚💛💜💝💞💟💠💡💢💣💤💥💦💧💨💩💪💫💬💭💮💯💰💱💲💳💴💵💶💷💸💹💺💻💼💽💾💿📀📁📂📃📄📅📆📇📈📉📊📋📌📍📎📏📐📑📒📓📔📕📖📗📘📙📚📛📜📝📞📟📠📡📢📣📤📥📦📧📨📩📪📫📬📭📮📯📰📱📲📳📴📵📶📷📸📹📺📻📼📽📾📿🔀🔁🔂🔃🔄🔅🔆🔇🔈🔉🔊🔋🔌🔍🔎🔏🔐🔑🔒🔓🔔🔕🔖🔗🔘🔙🔚🔛🔜🔝🔞🔟🔠🔡🔢🔣🔤🔥🔦🔧🔨🔩🔪🔫🔬🔭🔮🔯🔰🔱🔲🔳🔴🔵🔶🔷🔸🔹🔺🔻🔼🔽🔾🔿🕀🕁🕂🕃🕄🕅🕆🕇🕈🕉🕊🕋🕌🕍🕎🕏🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧🕨🕩🕪🕫🕬🕭🕮🕯🕰🕱🕲🕳🕴🕵🕶🕷🕸🕹🕺🕻🕼🕽🕾🕿🖀🖁🖂🖃🖄🖅🖆🖇🖈🖉🖊🖋🖌🖍🖎🖏🖐🖑🖒🖓🖔🖕🖖🖗🖘🖙🖚🖛🖜🖝🖞🖟🖠🖡🖢🖣🖤🖥🖦🖧🖨🖩🖪🖫🖬🖭🖮🖯🖰🖱🖲🖳🖴🖵🖶🖷🖸🖹🖺🖻🖼🖽🖾🖿🗀🗁🗂🗃🗄🗅🗆🗇🗈🗉🗊🗋🗌🗍🗎🗏🗐🗑🗒🗓🗔🗕🗖🗗🗘🗙🗚🗛🗜🗝🗞🗟🗠🗡🗢🗣🗤🗥🗦🗧🗨🗩🗪🗫🗬🗭🗮🗯🗰🗱🗲🗳🗴🗵🗶🗷🗸🗹🗺🗻🗼🗽🗾🗿🗡🖱🖲🖼🗂🏵🏷🐿👁📽🕉🕊🕯🕰🕳🕴🏕🏖🏗🏘🏙🏚🏛🏜🏝🏞🏟🙐🙑🙒🙓🙔🙕🙖🙗🙘🙙🙚🙛🙜🙝🙞🙟🙠🙡🙢🙣🙤🙥🙦🙧🙨🙩🙪🙫🙬🙭🙮🙯🙰🙱🙲🙳🙴🙵🙶🙷🙸🙹🙺🙻🙼🙽🙾🙿🏳🕵🗃🗄🗑🗒🗓🗜🗝🗞ᴗᴟᴤᴥᴦᴧᴨᴩᴪ•‣…‰‱※D‼‽⁁⁂⁃⁄⁅⁆⁇⁈⁉⁎⁏⁐⁑⁰ⁱ⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ℂ℃ℇ℉ℊℋℌℍℎℏℐℑℒℓℕ№ℚℛℜℝ℣ℤΩKÅℬℯℰℱℳ⅋ⅎ⅐⅑⅒⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞⅟ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ↔↕↝↠↣↦↬↭↮↯↹↺↻⇎⇏⇒⇛⇝⇢⇶∀∁∂∃∄∅∆∇S∈∉∎∏∐∑−∓∔∕∖∗∘∙√∛∜∝∞∟∠∡∢∣∤∥∦∧∨∩∪∫∬∭∮∯∰∱∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⌀⌁⌂⌃⌄⌅⌆⌇⌑⌐⌒⌓⌔⌕⌖⌗⌘⌙⌚⌛⌤⌥⌦⌧⌨⌫⌬⏏⏚⏛⏰⏱⏲⏳␣╱╲╳▀▁▂▃▄▅▆▇█▉▊▋▌▍▎▏░▒▓▖▗▘▙▚▛▜▝▞▟■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿☀☁☂☃☄★☆☇☈☉☊☋☌☍☎☏☐☑☒☓☔☕☖☗☘☙☚☛☜☝☞☟☠☡☢☣☤☥☦☧☨☩☪☫☬☭☮☯☰☱☲☳☴☵☶☷☸☼☽☾☿♀♁♂♃♄♅♆♇♔♕♖♗♘♙♚♛♜♝♞♟♠♡♢♣♤♥♦♧♨♩♪♫♬♭♮♯♲♳♴♵♶♷♸♹♺♻♼♽♾⚀⚁⚂⚃⚄⚅⚐⚑⚒⚓⚔⚕⚖⚗⚘⚙⚚⚛⚜⚝⚞⚟⚠⚡⚢⚣⚤⚥⚦⚧⚨⚩⚪⚫⚬⚭⚮⚯⚰⚱⚲⚳⚴⚵⚶⚷⚸⚹⚺⚻⚼⛀⛁⛂⛃⛢⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⛲⛴⛵⛶⛷⛸⛹⛺⛻⛼⛽⛾⛿✁✂✃✄✅✆✇✈✉✊✋✌✍✎✏✐✑✒✓✔✕✖✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰✱✲✳✴✵✶✷✸✹✺✻✼✽✾✿❀❁❂❃❄❅❆❇❈❉❊❋❌❍❎❏❐❑❒❓❔❕❖❗❟❠❡❢❣❤❥❦❧⟴⟿⤀⤁⤐⤑⤔⤕⤖⤗⤘⤨⤩⤪⤫⤬⤭⤮⤯⤰⤱⤲⤼⤽⤾⤿⥀⥁⥂⥃⥄⥅⥆⥇⥈⥉⥊⥋⥌⥍⥎⥏⥐⥑⬒⬓⬔⬕⬖⬗⬘⬙⬚⸮〃〄﴾﴿︽︾﹁﹂﹃﹄﹅﹆｟｠⌬⌬⌬⌬◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁⛇⛓⚛⛇⛓⚛⛇⛓⚛⛇⛓⚛'
+unicodelen=${#unicode}
+function getunicodec() {
+    r="$RANDOM"
+    from=$(($r % $unicodelen))
+    echo "${unicode:from:1}"
+}
 
 # purple to peach colors (background colors)
 PP0='\[\033[48;5;18m\]'
@@ -259,8 +288,6 @@ PP2='\[\033[48;5;90m\]'
 PP3='\[\033[48;5;126m\]'
 PP4='\[\033[48;5;162m\]'
 PP5='\[\033[48;5;198m\]'
-# and in gradient form
-PP="${PP0} ${PP1} ${PP2} ${PP3} ${PP4} ${PP5} ${DEFAULT}"
 
 #peach to yellow
 PY1='\[\033[48;5;198m\]'
@@ -269,31 +296,52 @@ PY3='\[\033[48;5;210m\]'
 PY4='\[\033[48;5;216m\]'
 PY5='\[\033[48;5;222m\]'
 PY6='\[\033[48;5;228m\]'
-PY="${PY1} ${PY2} ${PY3} ${PY4} ${PY5} ${PY6} ${DEFAULT}"
+PY="${PY1}${xc}${PY2}${xc}${PY3}${xc}${PY4}${xc}${PY5}${xc}${PY6}${xc}${DEFAULT}"
 
+PM0='\[\033[48;5;18m\]'
+PM1='\[\033[48;5;54m\]'
+PM2='\[\033[48;5;90m\]'
+PM3='\[\033[48;5;126m\]'
+PM4='\[\033[48;5;162m\]'
+PM5='\[\033[48;5;198m\]'
+PM="${PM0}${xc}${PM1}${xc}${PM2}${xc}${PM3}${xc}${PM4}${xc}${PM5}${xc}${DEFAULT}"
 
+PY1F='\[\033[38;5;198m\]'
+PY2F='\[\033[38;5;204m\]'
 PY3F='\[\033[38;5;210m\]'
-#yellowish color used for username
+PY4F='\[\033[38;5;216m\]'
 PY5F='\[\033[38;5;222m\]'
+PY6F='\[\033[38;5;228m\]'
+PP0F='\[\033[38;5;18m\]'
 #dark purple used for date and $
 PP2F='\[\033[38;5;126m\]'
 #pinkish color used for commands and paranetheses
 PP5F='\[\033[38;5;198m\]'
 
-#echo -ne for some reason doesn't need the \[\] 
-ECHOG='\033[38;5;02m'
-ECHOR='\033[38;5;09m'
-
+ESG='\[\033[38;5;119m\]'
+ESR='\[\033[38;5;203m\]'
+#echo -ne doesn't need the \[\], as they are PS1 escapes 
+ECHOG='\033[38;5;119m'
+ECHOR='\033[38;5;203m'
+NC='\033[00m'
 
 # Gets the exit code of the last command executed.
 # Use "printf '%.*s' $? $?" to show only non-zero codes.
 # The characters ✓ and ✗ may also be helpful!
 function lastexit()
 {
-        EXITSTATUS="$?"
-        if [ $EXITSTATUS -eq 0 ];
-        then echo -ne "${ECHOG}$EXITSTATUS"; 
-        else echo -ne "${ECHOR}$EXITSTATUS"; 
+        EXITSTATUS="$1"
+        if [ $EXITSTATUS -eq 0 ]; 
+        then echo "${ESG}${EXITSTATUS}"; 
+        else echo "${ESR}${EXITSTATUS}"; 
+        fi;
+}
+function lastexitcolor()
+{
+        EXITSTATUS="$1"
+        if [ $EXITSTATUS -eq 0 ]; 
+        then echo "${ESG}";
+        else echo "${ESR}"; 
         fi;
 }
 
@@ -302,20 +350,92 @@ function gitbranch()
         git rev-parse --abbrev-ref HEAD 2> /dev/null 1> /dev/null
         if [[ "$?" -eq "0" ]]; then
             str="⎇ $(git rev-parse --abbrev-ref HEAD | tr -d '$' | tr -d '`')"
-            # while read c; do
-	    #     if [[ "${c}" == '$' ]]; then
-	    # 		    return
-	    #     fi;
-	    # done < <(echo "${str}" | sed -e 's/\(.\)/\1\n/g')
-	    echo "${str}"
+        echo " ${str}"
         fi;
 }
 
+function timer_now() {
+    date +%s%N
+}
+
+function timer_start() {
+    start_time="${start_time:-$(timer_now)}"
+}
+
+function timer_stop() {
+    if [[ $NUM_CALLS -lt 2 ]]; then
+        timer_show="␣"
+        NUM_CALLS=0
+        unset start_time
+        return
+    fi
+    local delta_us=$((($(timer_now)-start_time)/1000))
+    local us=$((delta_us%1000))
+    local ms=$(((delta_us/1000)%1000))
+    local s=$(((delta_us/1000000)%60))
+    local m=$(((delta_us/60000000)%60))
+    local h=$((delta_us/3600000000))
+    # Goal: always show around 3 digits of accuracy
+    if ((h>0)); then timer_show=${h}h${m}m
+    elif ((m>0)); then timer_show=${m}m${s}s
+    elif ((s>=10)); then timer_show=${s}.$((ms/100))s
+    elif ((s>0)); then timer_show=${s}.$(printf %03d $ms)s
+    elif ((ms>=100)); then timer_show=${ms}ms
+    elif ((ms>0)); then timer_show=${ms}.$((us/100))ms
+    else timer_show=${us}us
+    fi
+    unset start_time
+    NUM_CALLS=0
+}
+
+
+#preexec > timer_start > if SETTING_PROMPT unset, start timer_start
+#> else unset SETTING_PROMPT
+#setprompt > 
+ac='↣'
+function preexec() {
+    if [[ -z "$this" ]]; then
+        this=$BASH_COMMAND
+        this="$(echo "$this" | sed 's/this=//g')"
+    elif [[ "$BASH_COMMAND" != "setprompt" ]]; then
+        this+=" ${ac} "$BASH_COMMAND
+        this="$(echo "$this" | sed 's/this+=" ${ac} "//g')"
+    fi
+
+    NUM_CALLS=$((NUM_CALLS + 1))
+    echo -ne "\e[0m"
+    timer_start
+}
+
+LS_COLORS=$LS_COLORS:'di=0;95:ln=0;35:ex=0;93'
+trap 'preexec' DEBUG
+
 #This refreshes the prompt after every command
-setprompt() {
-        PS1="${PY}${PP2F} \T ${B}${PP5F}(${PY5F}\u${PP5F}) $(lastexit) ${PY5F}\w ${PY3F}$(gitbranch) ${DEFAULT}${N}${PP2F}\$\n${PP}${B}${PP5F} ➜ "
-        #trap is necessary because otherwise everything becomes pink
-        trap 'echo -ne "\e[0m"' DEBUG
+function setprompt() {
+    out="$?"
+    le=$(lastexit $out)
+    lc=$(lastexitcolor $out)
+    timer_stop
+    runt=$timer_show
+    uc="$PY6F"
+    hc=$uc
+    fir="$PY"
+    sec="$PM"
+    if [[ "$(id -u)" == "0" ]]; then
+        uc="$ESR"
+        hc="$PY6F"
+        sec="$PM"
+    elif [[ "$(hostname)" != "matt" ]]; then
+        uc="$PY6F$PP0"
+    fi;
+
+     PS1="${lc}╭─${fir} ${uc}\u${DEFAULT}${PP2F}@${uc}${hc}\H${DEFAULT} ${PY5F}\j${PP2F}j !${PY4F}\!${PP2F}/${PY3F}\# ${PY2F}\s v\V ${PY1F}\@ \n"
+    PS1+="${lc}⎬─${sec} ${PY4F}${this} ${PY5F}runtime: \[${runt}\] ${PY6F}exit: ${le}\n"
+    PS1+="${lc}⎬─${fir} ${PY6F}\w${PY2F}\[$(gitbranch)\] ${PP2F}\\$\n"
+    PS1+="   \r${lc}╰┄┈◽${uc}\[$(getunicodec)\011\]${DEFAULT}${PP5F}◈▷ "
+    unset this
+    echo "$(dt) $(pwd) $$ $USER $(history 1)" >> ~/.bash_eternal_history
+
 }
 PROMPT_COMMAND=setprompt
 
@@ -344,16 +464,16 @@ function swap()
 # useful when jumping around hosts a lot
 function ii()
 {
-    echo -e "\nYou are logged on ${BRed}$HOST"
-    echo -e "\n${BRed}Additionnal information:$NC " ; uname -a
-    echo -e "\n${BRed}Users logged on:$NC " ; w -hs |
+    echo -e "\nYou are logged on to ${ECHOG}$(hostname)$NC"
+    echo -e "\n${ECHOG}Additionnal information:$NC " ; uname -a
+    echo -e "\n${ECHOG}Users logged on:$NC " ; w -hs |
              cut -d " " -f1 | sort | uniq
-    echo -e "\n${BRed}Current date :$NC " ; date
-    echo -e "\n${BRed}Machine stats :$NC " ; uptime
-    echo -e "\n${BRed}Memory stats :$NC " ; free
-    echo -e "\n${BRed}Diskspace :$NC " ; df / $HOME
-    echo -e "\n${BRed}Local IP Address :$NC" ; ip
-    echo
+    echo -e "\n${ECHOG}Current date :$NC " ; date
+    echo -e "\n${ECHOG}Machine stats :$NC " ; uptime
+    echo -e "\n${ECHOG}Memory stats :$NC " ; free
+    echo -e "\n${ECHOG}Diskspace :$NC " ; df / $HOME
+    echo -e "\n${ECHOG}Local IP Address :$NC" ; ip
+    echo ''
 }
 
 # print uptime, host name, number of users, and average load
@@ -378,27 +498,9 @@ function pskill() {
     ps ax | grep "$1" | grep -v grep | awk '{ print $1 }' | xargs kill
 }
 
-# prints the time every second that passes
-function rainbowtime()
-{
-        while true; do echo "$(date '+%D %T' | toilet -f term -F border --gay)"; sleep 1; done
-}
-
-# prints all fonts available to toilet
 function toiletfonts()
 {
         find /usr/share/figlet -name *.?lf -exec basename {}  \; | sed -e "s/\..lf$//" | xargs -I{} toilet -f {} {}
-}
-
-# get total size of current directory
-function dirsize()
-{
-        for filesize in $(ls -l . | grep "^-" | awk '{print $5}')
-        do
-        let totalsize=$totalsize+$filesize
-        done
-        echo -n "$totalsize bytes"
-        echo ""
 }
 
 # prints ANSI 16-colors
@@ -446,9 +548,4 @@ md5check() { md5sum "$1" | grep "$2";}
 # check top ten commands executed
 topten() { history | awk '{print $2}' | awk 'BEGIN {FS="|"}{print $1}' | sort | uniq -c | sort -n | tail | sort -nr;}
 
-
-# Make a permanent history of commands in a file in home
-# uses alias "dt" for date things
-PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo `dt` `pwd` $$ $USER \
-               "$(history 1)" >> ~/.bash_eternal_history'
 
