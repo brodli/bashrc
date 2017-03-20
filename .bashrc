@@ -410,6 +410,12 @@ function preexec() {
 LS_COLORS=$LS_COLORS:'di=0;95:ln=0;35:ex=0;93'
 trap 'preexec' DEBUG
 
+function bat() {
+    f=$(\cat /sys/class/power_supply/BAT0/charge_full)
+    c=$(\cat /sys/class/power_supply/BAT0/charge_now)
+    echo "$(bc -l <<< "$c/$f * 100")" | cut -c1-5
+}
+
 #This refreshes the prompt after every command
 function setprompt() {
     out="$?"
@@ -429,7 +435,7 @@ function setprompt() {
         uc="$PY6F$PP0"
     fi;
 
-     PS1="${lc}╭─${fir} ${uc}\u${DEFAULT}${PP2F}@${uc}${hc}\H${DEFAULT} ${PY5F}\j${PP2F}j !${PY4F}\!${PP2F}/${PY3F}\# ${PY2F}\s v\V ${PY1F}\@ \n"
+     PS1="${lc}╭─${fir} ${uc}\u${DEFAULT}${PP2F}@${uc}${hc}\H${DEFAULT} ${PY5F}\j${PP2F}j !${PY4F}\!${PP2F}/${PY4F}\# ${PY3F}$(bat)${PP2F}% ${PY2F}\s ${PP2F}v${PY2F}\V ${PY1F}\@ \n"
     PS1+="${lc}⎬─${sec} ${PY4F}${this} ${PY5F}runtime: \[${runt}\] ${PY6F}exit: ${le}\n"
     PS1+="${lc}⎬─${fir} ${PY6F}\w${PY2F}\[$(gitbranch)\] ${PP2F}\\$\n"
     PS1+="  \r${lc}╰┄┈◽${uc}\[$(getunicodec)\011\]${DEFAULT}${PP5F}◈▷ "
