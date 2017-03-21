@@ -680,7 +680,7 @@ function setprompt() {
      PS1="${lc}╭─${fir} ${uc}\u${D}${IP3F}@${uc}${hc}\H${D} ${PY4F}\j${IP3F}j"
     PS1+=" !${PY3F}\!${IP3F}/${PY3F}\# ${batstr}${PY1F}\s"
     PS1+=" ${IP3F}v${PY1F}\V ${PY0F}\@ \n"
-    PS1+="${lc}⎬─${sec} ${PY3F}${this}${PY4F}runtime: \[${runt}\]"
+    PS1+="${lc}⎬─${sec} ${PY3F}${this}${D}${PY4F}runtime: \[${runt}\]"
     PS1+=" ${PY5F}exit: ${le}\n"
     PS1+="${lc}⎬─${fir} ${PY4F}\w${PY1F}\[$(gitbranch)\] ${IP3F}\\$\n"
     PS1+="  \r${lc}╰┄┈◽${uc}\[$(getunicodec)\011\]${D}${PY0F}◈▷ "
