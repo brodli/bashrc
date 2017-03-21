@@ -1,44 +1,55 @@
 #!/bin/bash
-function settitle () 
-{ 
-        echo -ne "\e]2;$@\a\e]1;$@\a"; 
-}
-
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-# ----------------------------------
-# BASIC STUFF
-# ----------------------------------
+# ═══════════════════════════════════════
+# LOCALE
+# ═══════════════════════════════════════
+#localectl set-locale LANG=en_US.UTF-8
 
+# ═══════════════════════════════════════
+# ENVIRONMENT VARIABLES
+# ═══════════════════════════════════════
 #for i3
 export TERMINAL="gnome-terminal"
 
-PATH="/usr/local/bin:/opt/texbin:/usr/lib64/qt-3.3/bin:/usr/lib64/ccache:/usr/local/sbin:/usr/bin:/usr/sbin:/home/M/.local/bin:/home/M/bin:/home/M/Scripts/Customization/"
-
+# Modify path here:
+PATH="/usr/local/bin:/opt/texbin:/usr/lib64/qt-3.3/bin:/usr/lib64/ccache"
+PATH+=":/usr/local/sbin:/usr/bin:/usr/sbin:/home/M/.local/bin:/home/M/bin"
+PATH+=":/home/M/Scripts/Customization/"
 export PATH
 
+# Editor for git and other commands
 export VISUAL=nano
 export EDITOR="$VISUAL"
 
+# ═══════════════════════════════════════
+# CONFIG SETUP
+# ═══════════════════════════════════════
+# Load x settings in xterm, urxvt, etc.
+if [[ -f ~/.Xresources ]];then xrdb -merge ~/.Xresources; fi
+
+# ═══════════════════════════════════════
+# BASH FLAGS
+# ═══════════════════════════════════════
 # don't exit terimal on ctrl+D EOF
 set -o ignoreeof
-
 # set tab-autocompete to ignore case
 set completion-ignore-case On
-
 # make cd ignore case and small typos
 shopt -s cdspell
-
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
+# go to a directory when it is typed alone on a line (cd automatically)
 shopt -s autocd
 
+# ═══════════════════════════════════════
+# HISTORY MANAGEMENT
+# ═══════════════════════════════════════
 # append to the history file, don't overwrite it
 shopt -s histappend
-
 # set length of command history rememebered
 # make sure this isn't overrided by the OS (Ubuntu does this)
 unset HISTFILESIZE
@@ -46,15 +57,10 @@ unset HISTSIZE
 HISTSIZE=1000
 HISTFILESIZE=1000
 
-# -------------------------------
-# MISC SETUP
-# -------------------------------
+# ═══════════════════════════════════════
+# COLORS FOR COMMON COMMANDS
+# ═══════════════════════════════════════
 
-
-# make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-# uncomment for a colored prompt, if the terminal has the capability
 force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
@@ -68,9 +74,9 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-# enable color support of ls and also add handy aliases
+# Enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)"
     alias ls='ls --color=auto'
     alias dir='dir --color=auto'
     alias vdir='vdir --color=auto'
@@ -79,36 +85,53 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
+alias diff="colordiff"
 
-# -------------------------------
-# ALIASES
-# -------------------------------
+PY0F='\[\033[38;5;198m\]'
+PY1F='\[\033[38;5;204m\]'
+PY2F='\[\033[38;5;210m\]'
+PY3F='\[\033[38;5;216m\]'
+PY4F='\[\033[38;5;222m\]'
+PY5F='\[\033[38;5;228m\]'
+# Less and man color codes
+export LESS_TERMCAP_mb=$'\033[38;5;198m'     # begin blink
+export LESS_TERMCAP_md=$'\033[38;5;228m'     # begin bold
+export LESS_TERMCAP_so=$'\033[38;5;222m'     # begin reverse video
+export LESS_TERMCAP_us=$'\033[38;5;204m'    # begin underline
+export LESS_TERMCAP_me=$'\e[0m'        # reset bold/blink
+export LESS_TERMCAP_se=$'\e[0m'        # reset reverse video
+export LESS_TERMCAP_ue=$'\e[0m'        # reset underline
+export GROFF_NO_SGR=1                  # for konsole and gnome-terminal
 
-# Aliases could also be put in a separate file:
-# if [ -f ~/.bash_aliases ]; then
-#     . ~/.bash_aliases
-# fi
+# Give less options to man
+export MANPAGER='less -s -M +Gg'
 
-# ls thing
-# --------------
-#show full paths
-alias path="ls -d $PWD/*"
-# show hidden files too
+# ═══════════════════════════════════════
+# LS ALIASES
+# ═══════════════════════════════════════
+# Show full paths of files in current directory
+alias paths='ls -d $PWD/*'
+# Show hidden files too
 alias la='ls -A'
-#show file size, permissions, date, etc.
-alias ll='ls -alvhs'
+# Show file size, permissions, date, etc.
+alias ll='ls -lvhs'
+alias lll='ls -alvhs'
+# Show only directories 
 alias l.='ls -d */'
-#sort files by size, showing biggest at the bottom
+# sort files by size, showing biggest at the bottom
 alias sizesort="ls -alSr | tr -s ' ' | cut -d ' ' -f 5,9"
-# tree of directories
-alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
 # typo correction
-alias ls='ls --color=auto -l'
 alias l='ls'
 alias sl="ls"
 alias l="ls"
 alias s="ls"
 
+# Custom colors for ls
+LS_COLORS=$LS_COLORS:'di=0;95:ln=0;35:ex=0;93'
+
+# ═══════════════════════════════════════
+# FILE MANAGEMENT ALIASES
+# ═══════════════════════════════════════
 # don't clobber files or ruin the OS
 alias cp='cp -i'
 alias mv='mv -i'
@@ -122,8 +145,6 @@ alias mntwin='sudo mount -t ntfs /dev/nvme0n1p3 /mnt/'
 # make directory and any parent directories needed
 alias mkdir='mkdir -p'
 
-alias sb='source ~/.bashrc'
-
 # easier directory jumping
 alias ..="cd .."
 alias ...="cd ../.."
@@ -132,65 +153,117 @@ alias .....="cd ../../../.."
 # typo fix
 alias cd..='cd ..'
 
-alias cat="pygmentize"
+function cdf() {
+    \cd "$@"
+    ls -l
+}
+alias cd=cdf
 
-#use to get current directory with spaces escaped
-alias qwd='printf "%q\n" "$(pwd)"'
+# ═══════════════════════════════════════
+# RELOAD .BASHRC
+# ═══════════════════════════════════════
+alias sb='source ~/.bashrc'
 
+# ═══════════════════════════════════════
+# FILE READ/WRITE
+# ═══════════════════════════════════════
+# try to use python pygmentize; if it doesn't know what to do,
+# just use regular cat
+catf() {
+    args=$@
+    pygmentize $args 2>/dev/null
+    if [[ "$?" != "0" ]]; then
+        \cat $args
+    fi
+}
+alias cat=catf
+
+# ═══════════════════════════════════════
+# PACKAGE MANAGEMENT
+# ═══════════════════════════════════════
 # stop typing so much when package managing
 alias install='sudo dnf install'
 alias remove='sudo dnf remove'
 alias update='sudo dnf update'
 alias upgrade='sudo dnf update && sudo apt-get upgrade'
 
-# make common commands easier to read for humans
-alias diff="colordiff"
-alias df="df -Tha --total"
-alias du="du -ach | sort -h"
-alias free="free -mth"
-
-# easy time and date printing
-alias now='date +"%T"'
-alias dt='date "+%F %T"'
-
+# ═══════════════════════════════════════
+# OS POWER MANAGEMENT
+# ═══════════════════════════════════════
 # easy shutdown/reboot
 alias reboot="sudo /sbin/reboot"
 alias shutdown="sudo /sbin/shutdown"
 
+# ═══════════════════════════════════════
+# DISK UTILS
+# ═══════════════════════════════════════
+# make common commands easier to read for humans
+alias df="df -Tha --total"
+alias du="du -ach | sort -h"
+alias free="free -mth"
+
+# ═══════════════════════════════════════
+# TIME AND DATE
+# ═══════════════════════════════════════
+# easy time and date printing
+alias now='date +"%T"'
+alias dt='date "+%F %T"'
+
+# ═══════════════════════════════════════
+# PRETTY THINGS
+# ═══════════════════════════════════════
 # custom cmatrix
 alias cmatrix="cmatrix -bC yellow"
 
+# ═══════════════════════════════════════
+# PROCESS MANAGEMENT
+# ═══════════════════════════════════════
 # search processes (find PID easily)
 alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
 # show all processes
 alias psf="ps auxfww"
-
 #given a PID, intercept the stdout and stderr
 alias intercept="sudo strace -ff -e trace=write -e write=1,2 -p" 
+# kill a given process by name
+function pskill() {
+    ps ax | grep "$1" | grep -v grep | awk '{ print $1 }' | xargs kill
+}
 
+# ═══════════════════════════════════════
+# NETWORKS AND FILES
+# ═══════════════════════════════════════
 # make wget continue downloads if inturrupted
 alias wget="wget -c"
 
 # show current IP address
-alias ip="ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'"
+ipf() {
+    pip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -v ^$)
+    echo "$pip" | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'
+
+}
+alias ip=ipf
 
 # super convenient HTTP server
 # with python 3, it will be "python3 -m http.server"
 alias http="python -m SimpleHTTPServer"
 
-alias hw="ssh -X masnes01@homework.cs.tufts.edu"
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-# Alerts you when the program has finished/errored
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
 # Show active http connections
 alias ports='echo -e "\n${BRED}Open connections :$NC "; netstat -pan --inet;'
 
-# directory bookmarks
+# ═══════════════════════════════════════
+# SSH ALIASES
+# ═══════════════════════════════════════
+# So as to not expose my ip addresses of interest on GitHub
+if [[ -f ~/.ssh_aliases ]]; then source ~/.ssh_aliases; fi
+
+# ═══════════════════════════════════════
+# BOOKMARKING SYSTEM
+# ═══════════════════════════════════════
+#use to get current directory with spaces escaped
+alias qwd='printf "%q\n" "$(pwd)"'
+
 # loads bookmarks from file in home directory
-alias load='sh .bookmarks'
+alias load='bash ~/.bookmarks'
 # aliases to set and go to bookmarks
 alias setc='alias c="\cd $(qwd)"'
 alias setc1='alias c1="\cd $(qwd)"'
@@ -203,24 +276,20 @@ alias setc7='alias c7="\cd $(qwd)"'
 alias setc8='alias c8="\cd $(qwd)"'
 alias setc9='alias c9="\cd $(qwd)"'
 # save bookmarks for later sessions
-alias savec='alias|grep -e "alias c\([0-9]\|=\)"|grep -v "alias setc" > ~/.bookmarks'
+alias savec='alias|grep "^alias c[0-9]=" > ~/.bookmarks'
 # list all bookmarks
-alias lma='alias|grep -e "alias c\([0-9]\|=\)"|grep -v "alias setc" | sed "s/alias //"'
+alias lma='alias|grep "^alias c[0-9]="|sed "s/alias //"'
 touch ~/.bookmarks
-source ~/.bookmarks
+if [[ -f ~/.bookmarks ]]; then source ~/.bookmarks; fi
 
-function cdf() {
-    \cd "$@"
-    ls
-}
-
-alias cd=cdf
-
+# ═══════════════════════════════════════
+# GIT & GITHUB
+# ═══════════════════════════════════════
+# checkout a branch and display the files we see
 function checkoutfun() {
     git checkout $1
     ls
 }
-
 alias checkout=checkoutfun
 
 alias branch='git branch'
@@ -233,20 +302,63 @@ alias stash='git stash'
 alias init='git init'
 alias clone='git clone'
 
-# PROMPT APPEARANCE (PS1)
-# ---------------------------
+# ═══════════════════════════════════════
+# UNICODE BLOCK
+# ═══════════════════════════════════════
+# For fun selection of random unicode chars
+unicode='×Ø÷±ÿłŊŋƜɨɷɸΔΣΦΨΩαβγδεζηθκλμνξπρστυφχψωᴀᴃᴕᴖ⚗🗺🌀🌁🌂🌃🌄🌅🌆🌇🌈🌉🌊🌋'
+unicode+='🌌🌍🌎🌏🌐🌑🌒🌓🌔🌕🌖🌗🌘🌙🌚🌛🌜🌝🌞🌟🌠🌡🌢🌣🌤🌥🌦🌧🌨🌩🌪🌫🌬🌭🌮🌯🌰🌱🌲🌳🌴🌵🌶'
+unicode+='🌷🌸🌹🌺🌻🌼🌽🌾🌿🍀🍁🍂🍃🍄🍅🍆🍇🍈🍉🍊🍋🍌🍍🍎🍏🍐🍑🍒🍓🍔🍕🍖🍗🍘🍙🍚🍛🍜🍝🍞🍟🍠'
+unicode+='🍡🍢🍣🍤🍥🍦🍧🍨🍩🍪🍫🍬🍭🍮🍯🍰🍱🍲🍳🍴🍵🍶🍷🍸🍹🍺🍻🍼🍽🍾🍿🎀🎁🎂🎃🎄🎅🎆🎇🎈🎉🎊'
+unicode+='🎋🎌🎍🎎🎏🎐🎑🎒🎓🎔🎕🎖🎗🎘🎙🎚🎛🎜🎝🎞🎟🎠🎡🎢🎣🎤🎥🎦🎧🎨🎩🎪🎫🎬🎭🎮🎯🎰🎱🎲🎳🎴'
+unicode+='🎵🎶🎷🎸🎹🎺🎻🎼🎽🎾🎿🏀🏁🏂🏃🏄🏅🏆🏇🏈🏉🏊🏋🏌🏍🏎🏏🏐🏑🏒🏓🏔🏕🏖🏗🏘🏙🏚🏛🏜🏝🏞🏟'
+unicode+='🏠🏡🏢🏣🏤🏥🏦🏧🏨🏩🏪🏫🏬🏭🏮🏯🏰🏱🏲🏳🏴🏵🏶🏷🏸🏹🏺🏻🏼🏽🏾🏿🐀🐁🐂🐃🐄🐅🐆🐇🐈🐉'
+unicode+='🐊🐋🐌🐍🐎🐏🐐🐑🐒🐓🐔🐕🐖🐗🐘🐙🐚🐛🐜🐝🐞🐟🐠🐡🐢🐣🐤🐥🐦🐧🐨🐩🐪🐫🐬🐭🐮🐯🐰🐱🐲'
+unicode+='🐳🐴🐵🐶🐷🐸🐹🐺🐻🐼🐽🐾🐿👀👁👂👃👄👅👆👇👈👉👊👋👌👍👎👏👐👑👒👓👔👕👖👗👘👙👚👛'
+unicode+='👜👝👞👟👠👡👢👣👤👥👦👧👨👩👪👫👬👭👮👯👰👱👲👳👴👵👶👷👸👹👺👻👼👽👾👿💀💁💂💃💄💅'
+unicode+='💆💇💈💉💊💋💌💍💎💏💐💑💒💓💔💕💖💗💘💙💚💛💜💝💞💟💠💡💢💣💤💥💦💧💨💩💪💫💬💭💮'
+unicode+='💯💰💱💲💳💴💵💶💷💸💹💺💻💼💽💾💿📀📁📂📃📄📅📆📇📈📉📊📋📌📍📎📏📐📑📒📓📔📕📖📗'
+unicode+='📘📙📚📛📜📝📞📟📠📡📢📣📤📥📦📧📨📩📪📫📬📭📮📯📰📱📲📳📴📵📶📷📸📹📺📻📼📽📾📿🔀🔁'
+unicode+='🔂🔃🔄🔅🔆🔇🔈🔉🔊🔋🔌🔍🔎🔏🔐🔑🔒🔓🔔🔕🔖🔗🔘🔙🔚🔛🔜🔝🔞🔟🔠🔡🔢🔣🔤🔥🔦🔧🔨🔩🔪🔫'
+unicode+='🔬🔭🔮🔯🔰🔱🔲🔳🔴🔵🔶🔷🔸🔹🔺🔻🔼🔽🔾🔿🕀🕁🕂🕃🕄🕅🕆🕇🕈🕉🕊🕋🕌🕍🕎🕏🕐🕑🕒🕓🕔🕕🕖🕗'
+unicode+='🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧🕨🕩🕪🕫🕬🕭🕮🕯🕰🕱🕲🕳🕴🕵🕶🕷🕸🕹🕺🕻🕼🕽🕾🕿🖀🖁🖂🖃'
+unicode+='🖄🖅🖆🖇🖈🖉🖊🖋🖌🖍🖎🖏🖐🖑🖒🖓🖔🖕🖖🖗🖘🖙🖚🖛🖜🖝🖞🖟🖠🖡🖢🖣🖤🖥🖦🖧🖨🖩🖪🖫🖬🖭🖮🖯🖰🖱🖲'
+unicode+='🖳🖴🖵🖶🖷🖸🖹🖺🖻🖼🖽🖾🖿🗀🗁🗂🗃🗄🗅🗆🗇🗈🗉🗊🗋🗌🗍🗎🗏🗐🗑🗒🗓🗔🗕🗖🗗🗘🗙🗚🗛🗜🗝🗞🗟'
+unicode+='🗠🗡🗢🗣🗤🗥🗦🗧🗨🗩🗪🗫🗬🗭🗮🗯🗰🗱🗲🗳🗴🗵🗶🗷🗸🗹🗺🗻🗼🗽🗾🗿🗡🖱🖲🖼🗂🏵🏷🐿👁'
+unicode+='📽🕉🕊🕯🕰🕳🕴🏕🏖🏗🏘🏙🏚🏛🏜🏝🏞🏟🙐🙑🙒🙓🙔🙕🙖🙗🙘🙙🙚🙛🙜🙝🙞🙟🙠🙡🙢🙣🙤🙥🙦🙧'
+unicode+='🙨🙩🙪🙫🙬🙭🙮🙯🙰🙱🙲🙳🙴🙵🙶🙷🙸🙹🙺🙻🙼🙽🙾🙿🏳🕵🗃🗄🗑🗒🗓🗜🗝🗞ᴗᴟᴤᴥᴦᴧᴨᴩᴪ•‣…‰‱※D‼‽⁁'
+unicode+='⁂⁃⁄⁅⁆⁇⁈⁉⁎⁏⁐⁑⁰ⁱ⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ℂ℃ℇ℉ℊℋℌℍℎℏℐℑℒℓℕ№ℚℛℜℝ℣ℤΩKÅℬℯℰℱ'
+unicode+='ℳ⅋ⅎ⅐⅑⅒⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞⅟ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ↔↕↝↠↣↦↬↭↮↯'
+unicode+='↹↺↻⇎⇏⇒⇛⇝⇢⇶∀∁∂∃∄∅∆∇S∈∉∎∏∐∑−∓∔∕∖∗∘∙√∛∜∝∞∟∠∡∢∣∤∥∦∧∨∩∪∫∬∭∮∯∰∱'
+unicode+='∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦'
+unicode+='≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘'
+unicode+='⊙⊚⊛⊜⊝⊞⊟⊠⊡⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚'
+unicode+='⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⌀⌁⌂⌃⌄⌅⌆⌇⌑⌐⌒⌓⌔⌕⌖⌗⌘⌙⌚⌛⌤⌥⌦⌧⌨'
+unicode+='⌫⌬⏏⏚⏛⏰⏱⏲⏳␣╱╲╳▀▁▂▃▄▅▆▇█▉▊▋▌▍▎▏░▒▓▖▗▘▙▚▛▜▝▞▟■□▢▣▤▥▦▧▨'
+unicode+='▩▪▫▬▭▮▯▰▱▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡'
+unicode+='◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿☀☁☂☃☄★☆☇☈☉☊☋☌☍☎☏☐☑'
+unicode+='☒☓☔☕☖☗☘☙☚☛☜☝☞☟☠☡☢☣☤☥☦☧☨☩☪☫☬☭☮☯☰☱☲☳☴☵☶☷☸☼☽☾☿♀♁♂♃♄♅'
+unicode+='♆♇♔♕♖♗♘♙♚♛♜♝♞♟♠♡♢♣♤♥♦♧♨♩♪♫♬♭♮♯♲♳♴♵♶♷♸♹♺♻♼♽♾⚀⚁⚂⚃⚄⚅'
+unicode+='⚐⚑⚒⚓⚔⚕⚖⚗⚘⚙⚚⚛⚜⚝⚞⚟⚠⚡⚢⚣⚤⚥⚦⚧⚨⚩⚪⚫⚬⚭⚮⚯⚰⚱⚲⚳⚴⚵⚶⚷⚸⚹⚺⚻⚼⛀⛁⛂'
+unicode+='⛃⛢⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⛲⛴⛵⛶⛷⛸⛹⛺⛻⛼⛽⛾⛿✁✂✃✄✅✆✇✈✉✊✋✌✍✎✏'
+unicode+='✐✑✒✓✔✕✖✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰✱✲✳✴✵✶✷✸✹✺✻✼✽✾✿❀'
+unicode+='❁❂❃❄❅❆❇❈❉❊❋❌❍❎❏❐❑❒❓❔❕❖❗❟❠❡❢❣❤❥❦❧⟴⟿⤀⤁⤐⤑⤔⤕⤖⤗⤘⤨⤩⤪⤫⤬'
+unicode+='⤭⤮⤯⤰⤱⤲⤼⤽⤾⤿⥀⥁⥂⥃⥄⥅⥆⥇⥈⥉⥊⥋⥌⥍⥎⥏⥐⥑⬒⬓⬔⬕⬖⬗⬘⬙⬚⸮〃〄﴾﴿︽︾﹁﹂﹃﹄﹅'
+unicode+='﹆｟｠⌬⌬⌬⌬◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁⛇⛓⚛⛇⛓⚛⛇⛓⚛⛇⛓⚛'
 
-# COLORS
-# colors work as a pair of brackets
-# in each bracket we use \033 or \e, an escape character
-# We then follow with more brackets, and an integer
-# 38 for the color as a foreground, 48 for background
-# a number 30-37 will use a 16-color code as a base, same with 40-47
-# 5 sets the sequence to change color based on 256-color codes, not full-color
-# and the number followed by m chooses a color from the chart below:
-# https://upload.wikimedia.org/wikipedia/en/1/15/Xterm_256color_chart.svg
-# also see https://stackoverflow.com/questions/15682537/ansi-color-specific-rgb-sequence-bash
+# Length of the previous string
+unicodelen=${#unicode}
 
+# Get a random character from the previous string
+function getunicodec() {
+    r="$RANDOM"
+    from=$((r%unicodelen))
+    echo "${unicode:from:1}"
+}
+
+# ═══════════════════════════════════════
+# BASIC COLOR CODES
+# ═══════════════════════════════════════
 # Default 16 colors
 DRED='\[\033[38;5;01m\]'
 DGREEN='\[\033[38;5;02m\]'
@@ -264,67 +376,72 @@ PURP='\[\033[38;5;13m\]'
 CYAN='\[\033[38;5;14m\]'
 WHITE='\[\033[38;5;15m\]'
 BLACK='\[\033[38;5;16m\]'
-BRED='\[\033[38;5;203m\]'
-# white
-DEFAULT='\[\033[00m\]'
-
+# default white
+D='\[\033[00m\]'
 # bold and normal text
 B='\[\e[1m\]'
 N='\[\e[21m\]'
 
-xc=' '
-unicode='×Ø÷±ÿłŊŋƜɨɷɸΔΣΦΨΩαβγδεζηθκλμνξπρστυφχψωᴀᴃᴕᴖ⚗🗺🌀🌁🌂🌃🌄🌅🌆🌇🌈🌉🌊🌋🌌🌍🌎🌏🌐🌑🌒🌓🌔🌕🌖🌗🌘🌙🌚🌛🌜🌝🌞🌟🌠🌡🌢🌣🌤🌥🌦🌧🌨🌩🌪🌫🌬🌭🌮🌯🌰🌱🌲🌳🌴🌵🌶🌷🌸🌹🌺🌻🌼🌽🌾🌿🍀🍁🍂🍃🍄🍅🍆🍇🍈🍉🍊🍋🍌🍍🍎🍏🍐🍑🍒🍓🍔🍕🍖🍗🍘🍙🍚🍛🍜🍝🍞🍟🍠🍡🍢🍣🍤🍥🍦🍧🍨🍩🍪🍫🍬🍭🍮🍯🍰🍱🍲🍳🍴🍵🍶🍷🍸🍹🍺🍻🍼🍽🍾🍿🎀🎁🎂🎃🎄🎅🎆🎇🎈🎉🎊🎋🎌🎍🎎🎏🎐🎑🎒🎓🎔🎕🎖🎗🎘🎙🎚🎛🎜🎝🎞🎟🎠🎡🎢🎣🎤🎥🎦🎧🎨🎩🎪🎫🎬🎭🎮🎯🎰🎱🎲🎳🎴🎵🎶🎷🎸🎹🎺🎻🎼🎽🎾🎿🏀🏁🏂🏃🏄🏅🏆🏇🏈🏉🏊🏋🏌🏍🏎🏏🏐🏑🏒🏓🏔🏕🏖🏗🏘🏙🏚🏛🏜🏝🏞🏟🏠🏡🏢🏣🏤🏥🏦🏧🏨🏩🏪🏫🏬🏭🏮🏯🏰🏱🏲🏳🏴🏵🏶🏷🏸🏹🏺🏻🏼🏽🏾🏿🐀🐁🐂🐃🐄🐅🐆🐇🐈🐉🐊🐋🐌🐍🐎🐏🐐🐑🐒🐓🐔🐕🐖🐗🐘🐙🐚🐛🐜🐝🐞🐟🐠🐡🐢🐣🐤🐥🐦🐧🐨🐩🐪🐫🐬🐭🐮🐯🐰🐱🐲🐳🐴🐵🐶🐷🐸🐹🐺🐻🐼🐽🐾🐿👀👁👂👃👄👅👆👇👈👉👊👋👌👍👎👏👐👑👒👓👔👕👖👗👘👙👚👛👜👝👞👟👠👡👢👣👤👥👦👧👨👩👪👫👬👭👮👯👰👱👲👳👴👵👶👷👸👹👺👻👼👽👾👿💀💁💂💃💄💅💆💇💈💉💊💋💌💍💎💏💐💑💒💓💔💕💖💗💘💙💚💛💜💝💞💟💠💡💢💣💤💥💦💧💨💩💪💫💬💭💮💯💰💱💲💳💴💵💶💷💸💹💺💻💼💽💾💿📀📁📂📃📄📅📆📇📈📉📊📋📌📍📎📏📐📑📒📓📔📕📖📗📘📙📚📛📜📝📞📟📠📡📢📣📤📥📦📧📨📩📪📫📬📭📮📯📰📱📲📳📴📵📶📷📸📹📺📻📼📽📾📿🔀🔁🔂🔃🔄🔅🔆🔇🔈🔉🔊🔋🔌🔍🔎🔏🔐🔑🔒🔓🔔🔕🔖🔗🔘🔙🔚🔛🔜🔝🔞🔟🔠🔡🔢🔣🔤🔥🔦🔧🔨🔩🔪🔫🔬🔭🔮🔯🔰🔱🔲🔳🔴🔵🔶🔷🔸🔹🔺🔻🔼🔽🔾🔿🕀🕁🕂🕃🕄🕅🕆🕇🕈🕉🕊🕋🕌🕍🕎🕏🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧🕨🕩🕪🕫🕬🕭🕮🕯🕰🕱🕲🕳🕴🕵🕶🕷🕸🕹🕺🕻🕼🕽🕾🕿🖀🖁🖂🖃🖄🖅🖆🖇🖈🖉🖊🖋🖌🖍🖎🖏🖐🖑🖒🖓🖔🖕🖖🖗🖘🖙🖚🖛🖜🖝🖞🖟🖠🖡🖢🖣🖤🖥🖦🖧🖨🖩🖪🖫🖬🖭🖮🖯🖰🖱🖲🖳🖴🖵🖶🖷🖸🖹🖺🖻🖼🖽🖾🖿🗀🗁🗂🗃🗄🗅🗆🗇🗈🗉🗊🗋🗌🗍🗎🗏🗐🗑🗒🗓🗔🗕🗖🗗🗘🗙🗚🗛🗜🗝🗞🗟🗠🗡🗢🗣🗤🗥🗦🗧🗨🗩🗪🗫🗬🗭🗮🗯🗰🗱🗲🗳🗴🗵🗶🗷🗸🗹🗺🗻🗼🗽🗾🗿🗡🖱🖲🖼🗂🏵🏷🐿👁📽🕉🕊🕯🕰🕳🕴🏕🏖🏗🏘🏙🏚🏛🏜🏝🏞🏟🙐🙑🙒🙓🙔🙕🙖🙗🙘🙙🙚🙛🙜🙝🙞🙟🙠🙡🙢🙣🙤🙥🙦🙧🙨🙩🙪🙫🙬🙭🙮🙯🙰🙱🙲🙳🙴🙵🙶🙷🙸🙹🙺🙻🙼🙽🙾🙿🏳🕵🗃🗄🗑🗒🗓🗜🗝🗞ᴗᴟᴤᴥᴦᴧᴨᴩᴪ•‣…‰‱※D‼‽⁁⁂⁃⁄⁅⁆⁇⁈⁉⁎⁏⁐⁑⁰ⁱ⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ℂ℃ℇ℉ℊℋℌℍℎℏℐℑℒℓℕ№ℚℛℜℝ℣ℤΩKÅℬℯℰℱℳ⅋ⅎ⅐⅑⅒⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞⅟ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹ↔↕↝↠↣↦↬↭↮↯↹↺↻⇎⇏⇒⇛⇝⇢⇶∀∁∂∃∄∅∆∇S∈∉∎∏∐∑−∓∔∕∖∗∘∙√∛∜∝∞∟∠∡∢∣∤∥∦∧∨∩∪∫∬∭∮∯∰∱∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⌀⌁⌂⌃⌄⌅⌆⌇⌑⌐⌒⌓⌔⌕⌖⌗⌘⌙⌚⌛⌤⌥⌦⌧⌨⌫⌬⏏⏚⏛⏰⏱⏲⏳␣╱╲╳▀▁▂▃▄▅▆▇█▉▊▋▌▍▎▏░▒▓▖▗▘▙▚▛▜▝▞▟■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿☀☁☂☃☄★☆☇☈☉☊☋☌☍☎☏☐☑☒☓☔☕☖☗☘☙☚☛☜☝☞☟☠☡☢☣☤☥☦☧☨☩☪☫☬☭☮☯☰☱☲☳☴☵☶☷☸☼☽☾☿♀♁♂♃♄♅♆♇♔♕♖♗♘♙♚♛♜♝♞♟♠♡♢♣♤♥♦♧♨♩♪♫♬♭♮♯♲♳♴♵♶♷♸♹♺♻♼♽♾⚀⚁⚂⚃⚄⚅⚐⚑⚒⚓⚔⚕⚖⚗⚘⚙⚚⚛⚜⚝⚞⚟⚠⚡⚢⚣⚤⚥⚦⚧⚨⚩⚪⚫⚬⚭⚮⚯⚰⚱⚲⚳⚴⚵⚶⚷⚸⚹⚺⚻⚼⛀⛁⛂⛃⛢⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⛲⛴⛵⛶⛷⛸⛹⛺⛻⛼⛽⛾⛿✁✂✃✄✅✆✇✈✉✊✋✌✍✎✏✐✑✒✓✔✕✖✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰✱✲✳✴✵✶✷✸✹✺✻✼✽✾✿❀❁❂❃❄❅❆❇❈❉❊❋❌❍❎❏❐❑❒❓❔❕❖❗❟❠❡❢❣❤❥❦❧⟴⟿⤀⤁⤐⤑⤔⤕⤖⤗⤘⤨⤩⤪⤫⤬⤭⤮⤯⤰⤱⤲⤼⤽⤾⤿⥀⥁⥂⥃⥄⥅⥆⥇⥈⥉⥊⥋⥌⥍⥎⥏⥐⥑⬒⬓⬔⬕⬖⬗⬘⬙⬚⸮〃〄﴾﴿︽︾﹁﹂﹃﹄﹅﹆｟｠⌬⌬⌬⌬◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁⛇⛓⚛⛇⛓⚛⛇⛓⚛⛇⛓⚛'
-unicodelen=${#unicode}
-function getunicodec() {
-    r="$RANDOM"
-    from=$(($r % $unicodelen))
-    echo "${unicode:from:1}"
-}
+# ═══════════════════════════════════════
+# COLOR CODES FOR ECHO STATEMENTS
+# ═══════════════════════════════════════
 
-# purple to peach colors (background colors)
-PP0='\[\033[48;5;18m\]'
-PP1='\[\033[48;5;54m\]'
-PP2='\[\033[48;5;90m\]'
-PP3='\[\033[48;5;126m\]'
-PP4='\[\033[48;5;162m\]'
-PP5='\[\033[48;5;198m\]'
-
-#peach to yellow
-PY1='\[\033[48;5;198m\]'
-PY2='\[\033[48;5;204m\]'
-PY3='\[\033[48;5;210m\]'
-PY4='\[\033[48;5;216m\]'
-PY5='\[\033[48;5;222m\]'
-PY6='\[\033[48;5;228m\]'
-PY="${PY1}${xc}${PY2}${xc}${PY3}${xc}${PY4}${xc}${PY5}${xc}${PY6}${xc}${DEFAULT}"
-
-PM0='\[\033[48;5;18m\]'
-PM1='\[\033[48;5;54m\]'
-PM2='\[\033[48;5;90m\]'
-PM3='\[\033[48;5;126m\]'
-PM4='\[\033[48;5;162m\]'
-PM5='\[\033[48;5;198m\]'
-PM="${PM0}${xc}${PM1}${xc}${PM2}${xc}${PM3}${xc}${PM4}${xc}${PM5}${xc}${DEFAULT}"
-
-PY1F='\[\033[38;5;198m\]'
-PY2F='\[\033[38;5;204m\]'
-PY3F='\[\033[38;5;210m\]'
-PY4F='\[\033[38;5;216m\]'
-PY5F='\[\033[38;5;222m\]'
-PY6F='\[\033[38;5;228m\]'
-PP0F='\[\033[38;5;18m\]'
-#dark purple used for date and $
-PP2F='\[\033[38;5;126m\]'
-#pinkish color used for commands and paranetheses
-PP5F='\[\033[38;5;198m\]'
-
-ESG='\[\033[38;5;119m\]'
-ESR='\[\033[38;5;203m\]'
-#echo -ne doesn't need the \[\], as they are PS1 escapes 
+# echo -ne doesn't need the \[\], as they are PS1 escapes
+# Same colors as ESG and ESR below
 ECHOG='\033[38;5;119m'
 ECHOR='\033[38;5;203m'
+# A darker red, to stand out more
+ECHOR2='\033[38;5;09m'
+
+# No color. Same as $D but for echo
 NC='\033[00m'
 
+# ═══════════════════════════════════════
+# PS1 COLOR SCHEME CODES & FORMATTING
+# ═══════════════════════════════════════
+
+BRED='\[\033[38;5;203m\]'
+# character to use in spacing out 6-character color blocks. Space for now
+# as I'm only using a backgrouund color.
+xc=' '
+
+# Peach to yellow
+PY0='\[\033[48;5;198m\]'
+PY1='\[\033[48;5;204m\]'
+PY2='\[\033[48;5;210m\]'
+PY3='\[\033[48;5;216m\]'
+PY4='\[\033[48;5;222m\]'
+PY5='\[\033[48;5;228m\]'
+PY="${PY0}${xc}${PY1}${xc}${PY2}${xc}${PY3}${xc}${PY4}${xc}${PY5}${xc}${D}"
+
+# Indigo to peach
+IP0='\[\033[48;5;18m\]'
+IP1='\[\033[48;5;54m\]'
+IP2='\[\033[48;5;90m\]'
+IP3='\[\033[48;5;126m\]'
+IP4='\[\033[48;5;162m\]'
+IP5='\[\033[48;5;198m\]'
+IP="${IP0}${xc}${IP1}${xc}${IP2}${xc}${IP3}${xc}${IP4}${xc}${IP5}${xc}${D}"
+
+# Same as PY sequence, but for foreground colors
+PY0F='\[\033[38;5;198m\]'
+PY1F='\[\033[38;5;204m\]'
+PY2F='\[\033[38;5;210m\]'
+PY3F='\[\033[38;5;216m\]'
+PY4F='\[\033[38;5;222m\]'
+PY5F='\[\033[38;5;228m\]'
+
+# Dark purple used for highlights
+IP3F='\[\033[38;5;126m\]'
+
+# A bright green and red, for highlights on exit status components
+# (exit status red and exit status green)
+ESG='\[\033[38;5;119m\]'
+ESR='\[\033[38;5;203m\]'
+
+# ═══════════════════════════════════════
+# EXIT STATUS MANAGEMENT
+# ═══════════════════════════════════════
 # Gets the exit code of the last command executed.
 # Use "printf '%.*s' $? $?" to show only non-zero codes.
 # The characters ✓ and ✗ may also be helpful!
@@ -332,19 +449,25 @@ function lastexit()
 {
         EXITSTATUS="$1"
         if [ $EXITSTATUS -eq 0 ]; 
-        then echo "${ESG}${EXITSTATUS}"; 
-        else echo "${RED}${EXITSTATUS}"; 
+        then echo -e "${ESG}${EXITSTATUS}"; 
+        else echo -e "${RED}${EXITSTATUS}"; 
         fi;
 }
+
+# Returns only a red or green color, depending on exit status
 function lastexitcolor()
 {
         EXITSTATUS="$1"
         if [ $EXITSTATUS -eq 0 ]; 
-        then echo "${ESG}";
-        else echo "${ESR}"; 
+        then echo -e "${ESG}";
+        else echo -e "${ESR}"; 
         fi;
 }
 
+# ═══════════════════════════════════════
+# GIT BRANCH MANAGEMENT
+# ═══════════════════════════════════════
+# Return a pretty-formatted string of the current git branch, if it exists
 function gitbranch()
 {
         git rev-parse --abbrev-ref HEAD 2> /dev/null 1> /dev/null
@@ -354,21 +477,68 @@ function gitbranch()
         fi;
 }
 
+# ═══════════════════════════════════════
+# BATTERY DIAGNOSTICS FOR PS1
+# ═══════════════════════════════════════
+# Check if the expected battery files exist
+function bat_c() {
+    [[ -f /sys/class/power_supply/BAT0/charge_full_design ]] && \
+    [[ -f /sys/class/power_supply/BAT0/charge_now ]] && \
+    [[ -f /sys/class/power_supply/BAT0/current_now ]] && \
+    [[ -f /sys/class/power_supply/BAT0/status ]];
+}
+# Get current battery percentage, color it red if < 15%
+function bat_p() {
+    f=$(\cat /sys/class/power_supply/BAT0/charge_full_design 2>/dev/null)
+    c=$(\cat /sys/class/power_supply/BAT0/charge_now 2>/dev/null)
+    echo "$(bc -l <<< "$c/$f * 100")" | cut -c1-5
+    #echo 10
+}
+
+# Get projected battery life time remaining
+function bat_t() {
+    c=$(\cat /sys/class/power_supply/BAT0/charge_now 2>/dev/null)
+    i=$(\cat /sys/class/power_supply/BAT0/current_now 2>/dev/null)
+    echo "$(bc -l <<< "$c/$i")" | cut -c1-5
+}
+
+# Get the current battery status: discharging, charging, or full
+function bat_s() {
+    s=$(\cat /sys/class/power_supply/BAT0/status)
+    if [[ "$s" == "Discharging" ]]; then
+        echo -e "${ECHOR2}▾"
+    elif [[ "$s" == "Charging" ]]; then
+        echo -e "${ECHOG}▴"
+    elif [[ "$s" == "Full" ]]; then
+        echo -e "${ECHOG}▫"
+    fi
+}
+
+# ═══════════════════════════════════════
+# COMMAND EXECUTION TIMER
+# ═══════════════════════════════════════
+# Returns epoch nanosecond time
 function timer_now() {
     date +%s%N
 }
 
+# Start a timer for the next command, or leave it at its current
+# value if it exists
 function timer_start() {
     start_time="${start_time:-$(timer_now)}"
 }
 
+# Stop a timer if running, and set the timer_show variable to 
+# the final value in a human-readable format.
 function timer_stop() {
+    # If no command was run, ignore any elapsed time.
     if [[ $NUM_CALLS -lt 2 ]]; then
         timer_show="␣"
         NUM_CALLS=0
         unset start_time
         return
     fi
+    # Unit conversion
     local delta_us=$((($(timer_now)-start_time)/1000))
     local us=$((delta_us%1000))
     local ms=$(((delta_us/1000)%1000))
@@ -388,151 +558,183 @@ function timer_stop() {
     NUM_CALLS=0
 }
 
-
-#preexec > timer_start > if SETTING_PROMPT unset, start timer_start
-#> else unset SETTING_PROMPT
-#setprompt > 
-ac='↣'
+# ═══════════════════════════════════════
+# PRE-COMMAND EXECUTION HOOK
+# ═══════════════════════════════════════
 function preexec() {
-    if [[ -z "$this" ]] && [[ "$BASH_COMMAND" != 'setprompt' ]]; then
+    # Character for showing commands executed this cycle
+    ac='↣'
+    # Before anything, print out a color code to make output default color
+    echo -ne "\e[0m"
+    # Concatenate expanded function calls into $this variable
+    # So we can display it in PS1
+    if [[ -z "$this" ]] && [[ "$BASH_COMMAND" != 'setprompt' ]] \
+        && [[ "$BASH_COMMAND" != 'PROMPT_COMMAND=setprompt' ]]; then
         this=$BASH_COMMAND
         this="$(echo "$this" | sed 's/this=//g')"
-    elif [[ "$BASH_COMMAND" != 'setprompt' ]] && [[ "$BASH_COMMAND" != 'PROMPT_COMMAND=setprompt' ]]; then
+    elif [[ "$BASH_COMMAND" != 'setprompt' ]] \
+        && [[ "$BASH_COMMAND" != 'PROMPT_COMMAND=setprompt' ]]; then
         this+=" ${ac} "$BASH_COMMAND
         this="$(echo "$this" | sed 's/this+=" ${ac} "//g')"
     fi
-
+    # Increment our counter for the number of simple commands executed
+    # in this prompt cycle
     NUM_CALLS=$((NUM_CALLS + 1))
-    echo -ne "\e[0m"
+    # Begin a timer
     timer_start
 }
-
-LS_COLORS=$LS_COLORS:'di=0;95:ln=0;35:ex=0;93'
+# Ensure this runs before every command.
 trap 'preexec' DEBUG
 
-function bat() {
-    f=$(\cat /sys/class/power_supply/BAT0/charge_full)
-    c=$(\cat /sys/class/power_supply/BAT0/charge_now)
-    echo "$(bc -l <<< "$c/$f * 100")" | cut -c1-5
-    #echo 10
-}
-
+# ═══════════════════════════════════════
+# PS1 DEFINITION (PROMPT_COMMAND)
+# ═══════════════════════════════════════
 #This refreshes the prompt after every command
 function setprompt() {
+    # Grab last exit status (must be first line)
     out="$?"
-    le=$(lastexit $out)
-    lc=$(lastexitcolor $out)
+    # Stop the timer
     timer_stop
     runt=$timer_show
-    uc="$PY6F"
+    # Append the last command to our history
+    history -a
+    # Get the color and status we will use for the exit status
+    le=$(lastexit $out)
+    lc=$(lastexitcolor $out)
+    # Set our username color and host color. If username is root,
+    # we want it to be red. If the hostname is not the name of
+    # my laptop, we want that to be red also as we are ssh'd somewhere.
+    uc="$PY5F"
     hc=$uc
-    fir="$PY"
-    sec="$PM"
     if [[ "$(id -u)" == "0" ]]; then
         uc="$ESR"
-        hc="$PY6F"
-        sec="$PM"
+        hc="$PY5F"
     elif [[ "$(hostname)" != "matt" ]]; then
-        uc="$PY6F$PP0"
+        uc="$PY5F$PP0"
+        hc="$RED"
     fi;
 
-    batc="${PY3F}"
-    if [[ $(bat | sed 's/\..*//') -lt 15 ]]; then
-        batc="${RED}"
-    fi;
-
+    # If we have something in the $this variable, i.e. if some
+    # command was run, then we want to display it, and it needs to
+    # be followed by a space. If it is empty, then we will display
+    # it anyway, but it will be an empty string.
     if [[ ! -z "$this" ]]; then
         this+=' '
     fi
 
-     PS1="${lc}╭─${fir} ${uc}\u${DEFAULT}${PP2F}@${uc}${hc}\H${DEFAULT} ${PY5F}\j${PP2F}j !${PY4F}\!${PP2F}/${PY4F}\# ${batc}$(bat)${PP2F}% ${PY2F}\s ${PP2F}v${PY2F}\V ${PY1F}\@ \n"
-    PS1+="${lc}⎬─${sec} ${PY4F}${this}${PY5F}runtime: \[${runt}\] ${PY6F}exit: ${le}\n"
-    PS1+="${lc}⎬─${fir} ${PY6F}\w${PY2F}\[$(gitbranch)\] ${PP2F}\\$\n"
-    PS1+="  \r${lc}╰┄┈◽${uc}\[$(getunicodec)\011\]${DEFAULT}${PP5F}◈▷ "
-    unset this
-    echo "$(dt) $(pwd) $$ $USER $(history 1)" >> ~/.bash_eternal_history
+    # In case the order needs to be changed conditionally.
+    fir="$PY"
+    sec="$IP"
 
+    if bat_c; then 
+        batstr="$(bat_s)${bc}$(bat_p)${IP3F}% ${bc}$(bat_t)${IP3F}h "
+        # Get battery status
+        bc="${PY2F}"
+        if [[ $(bat_p | sed 's/\..*//') -lt 15 ]]; then
+            bc="${RED}"
+        fi;
+    fi
+
+    # Anatomy of PS1 Variable:
+
+    # LINE 1:
+    # Color of exit status   Number of jobs running
+    # ┃   Rainbow colors     ┃   command # in history      12 hour AM/PM time
+    # ┃   ┃                  ┃   ┃    command # since starting shell  ┃
+    # ┃   ┃                  ┃   ┃    ┃  battery status               ┃
+    # ┃   ┃                  ┃   ┃    ┃  ┃        battery time left   ┃ 
+    # ┃   ┃ self-explanatory ┃   ┃    ┃  ┃ % left ┃     shell version ┃
+    # ┃   ┃        ┃         ┃   ┃    ┃  ┃ ┃      ┃     ┃     ┃       ┃
+    # ▼   ▼       ▼         ▼   ▼   ▼  ▼ ▼      ▼    ▼     ▼       ▼   
+    # ╭─████ user@hostname 2j !1000/123 ▾50.00% 3.000h bash v4.3.43 12:00PM
+
+    # LINE 2:
+    #                                               Last command exit status
+    #   Human readable runtime for last command           ┃
+    # Last command w/ all aliases expanded    ┃           ┃
+    #              ┃                          ┃           ┃
+    #              ▼                          ▼          ▼
+    # ⎬─████ ls --color-auto -lvhs runtime: 5.0ms exit: 0
+
+    # LINE 3:
+    #                                 User privelege ($ if normal, # if root)
+    #                Current git branch   ┃
+    #     Current working directory   ┃   ┃
+    #                  ┃              ┃   ┃
+    #                  ▼             ▼   ▼
+    # ⎬─████ ~/Documents/Project ⎇ dev $ 
+
+    # LINE 4:
+    #      Random unicode character from block above
+    #      ┃   Indicator for beginning of field to type command
+    #      ┃   ┃
+    #      ▼   ▼
+    # ╰┄┈◽ ◇  ◈▷
+
+    # All together, we have:
+    # ╭─████ user@hostname 2j !1000/123 ▾50.00% 3.000h bash v4.3.43 12:00PM
+    # ⎬─████ ls --color-auto -lvhs runtime: 5.0ms exit: 0
+    # ⎬─████ ~/Documents/Project ⎇ dev $ 
+    # ╰┄┈◽ ◇  ◈▷
+
+     PS1="${lc}╭─${fir} ${uc}\u${D}${IP3F}@${uc}${hc}\H${D} ${PY4F}\j${IP3F}j"
+    PS1+=" !${PY3F}\!${IP3F}/${PY3F}\# ${batstr}${PY1F}\s"
+    PS1+=" ${IP3F}v${PY1F}\V ${PY0F}\@ \n"
+    PS1+="${lc}⎬─${sec} ${PY3F}${this}${PY4F}runtime: \[${runt}\]"
+    PS1+=" ${PY5F}exit: ${le}\n"
+    PS1+="${lc}⎬─${fir} ${PY4F}\w${PY1F}\[$(gitbranch)\] ${IP3F}\\$\n"
+    PS1+="  \r${lc}╰┄┈◽${uc}\[$(getunicodec)\011\]${D}${PY0F}◈▷ "
+
+    # Delete our stored previous command
+    unset this
+    # Add this command to our secondary, massive history file
+    echo "$(dt) $(pwd) $$ $USER $(history 1)" >> ~/.bash_eternal_history
+    # Record our battery status
+    if bat_c; then echo "$(bat_p) $(bat_t)" >> ~/.battery_history; fi
 }
+# Run the previous function before every prompt to the user
 PROMPT_COMMAND=setprompt
 
-# -----------------------
-# FUNCTIONS
-# -----------------------
+
+# ═══════════════════════════════════════
+# COLORS AND FUN
+# ═══════════════════════════════════════
 
 # flashes the terminal background, q to exit 
-function flasher () { while true; do printf \\e[?5h; sleep 0.1; printf \\e[?5l; read -s -n1 -t1 && break; done; }
-
-# swap the names/contents of two files
-function swap()
-{ # Swap 2 filenames around, if they exist (from Uzi's bashrc).
-    local TMPFILE=tmp.$$
-
-    [ $# -ne 2 ] && echo "swap: 2 arguments needed" && return 1
-    [ ! -e $1 ] && echo "swap: $1 does not exist" && return 1
-    [ ! -e $2 ] && echo "swap: $2 does not exist" && return 1
-
-    mv "$1" $TMPFILE
-    mv "$2" "$1"
-    mv $TMPFILE "$2"
-}
-
-# returns a bunch of information about the current host
-# useful when jumping around hosts a lot
-function ii()
-{
-    echo -e "\nYou are logged on to ${ECHOG}$(hostname)$NC"
-    echo -e "\n${ECHOG}Additionnal information:$NC " ; uname -a
-    echo -e "\n${ECHOG}Users logged on:$NC " ; w -hs |
-             cut -d " " -f1 | sort | uniq
-    echo -e "\n${ECHOG}Current date :$NC " ; date
-    echo -e "\n${ECHOG}Machine stats :$NC " ; uptime
-    echo -e "\n${ECHOG}Memory stats :$NC " ; free
-    echo -e "\n${ECHOG}Diskspace :$NC " ; df / $HOME
-    echo -e "\n${ECHOG}Local IP Address :$NC" ; ip
-    echo ''
-}
-
-# print uptime, host name, number of users, and average load
-function upinfo () {
-echo -ne "$HOSTNAME uptime is ";uptime | awk /'up/ {print $3,$4,$5,$6,$7,$8,$9,$10}'
-}
-
-# makes man pages colorful
-function man() {
-    env LESS_TERMCAP_mb=$(printf "\e[1;31m") \
-    LESS_TERMCAP_md=$(printf "\e[1;31m") \
-    LESS_TERMCAP_me=$(printf "\e[0m") \
-    LESS_TERMCAP_se=$(printf "\e[0m") \
-    LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
-    LESS_TERMCAP_ue=$(printf "\e[0m") \
-    LESS_TERMCAP_us=$(printf "\e[1;32m") \
-    man "$@"
-}
-
-# kill a given process by name
-function pskill() {
-    ps ax | grep "$1" | grep -v grep | awk '{ print $1 }' | xargs kill
+function flasher () { 
+    while true; do 
+        printf \\e[?5h;
+        sleep 0.1;
+        printf \\e[?5l;
+        read -s -n1 -t1 && break;
+        done;
 }
 
 function toiletfonts()
 {
-        find /usr/share/figlet -name *.?lf -exec basename {}  \; | sed -e "s/\..lf$//" | xargs -I{} toilet -f {} {}
+        tf="$(find /usr/share/figlet -name *.?lf -exec basename {}  \;)"
+        echo "$tf" | sed -e "s/\..lf$//" | xargs -I{} toilet -f {} {}
 }
 
 # prints ANSI 16-colors
 function ansicolortest()
 {
-        T='ABC'   # The test text
-        echo -e "\n                 40m     41m     42m     43m     44m     45m     46m     47m";
-        for FGs in '    m' '   1m' '  30m' '1;30m' '  31m' '1;31m' '  32m' '1;32m' '  33m' '1;33m' '  34m' '1;34m' '  35m' '1;35m' '  36m' '1;36m' '  37m' '1;37m';
-        do FG=${FGs// /}
-        echo -en " $FGs \033[$FG  $T  "
-        for BG in 40m 41m 42m 43m 44m 45m 46m 47m;
-        do echo -en "$EINS \033[$FG\033[$BG  $T \033[0m\033[$BG \033[0m";
-        done
-        echo;
-        done
-        echo
+    T='ABC'   # The test text
+    echo -ne "\n\011\011   40m     41m     42m     43m"
+    echo -e "     44m     45m     46m     47m";
+    fff=('    m' '   1m' '  30m' '1;30m' '  31m' '1;31m')
+    fff2=('  32m' '1;32m' '  33m' '1;33m' '  34m' '1;34m')
+    fff3=('  35m' '1;35m' '  36m' '1;36m' '  37m' '1;37m')
+    FGS=("${fff[@]}" "${fff2[@]}" "${fff3[@]}")
+    for FGs in "${FGS[@]}";
+    do FG=${FGs// /}
+    echo -en " $FGs\011 \033[$FG  $T  "
+    for BG in 40m 41m 42m 43m 44m 45m 46m 47m;
+    do echo -en "$EINS \033[$FG\033[$BG  $T \033[0m\033[$BG \033[0m";
+    done
+    echo ""
+    done
+    echo ""
 }
 
 # prints xterm 256 colors
@@ -558,10 +760,63 @@ function 256colortest()
         echo -e "\n"
 }
 
+# check top ten commands executed
+topten() { 
+    all=$(history | awk '{print $2}' | awk 'BEGIN {FS="|"}{print $1}') 
+    echo "$all" | sort | uniq -c | sort -n | tail | sort -nr
+}
+
+
+# ═══════════════════════════════════════
+# FILES AND WINDOWS
+# ═══════════════════════════════════════
+
+# swap the names/contents of two files
+function swap()
+{ # Swap 2 filenames around, if they exist (from Uzi's bashrc).
+    local TMPFILE=tmp.$$
+
+    [ $# -ne 2 ] && echo "swap: 2 arguments needed" && return 1
+    [ ! -e $1 ] && echo "swap: $1 does not exist" && return 1
+    [ ! -e $2 ] && echo "swap: $2 does not exist" && return 1
+
+    mv "$1" $TMPFILE
+    mv "$2" "$1"
+    mv $TMPFILE "$2"
+}
+
 # compare the md5 of a file to a know sum
 md5check() { md5sum "$1" | grep "$2";}
 
-# check top ten commands executed
-topten() { history | awk '{print $2}' | awk 'BEGIN {FS="|"}{print $1}' | sort | uniq -c | sort -n | tail | sort -nr;}
+# Change the title of the terminal window
+function settitle () 
+{ 
+        echo -ne "\e]2;$@\a\e]1;$@\a"; 
+}
+
+# ═══════════════════════════════════════
+# DIAGNOSTIC INFO
+# ═══════════════════════════════════════
+# returns a bunch of information about the current host
+# useful when jumping around hosts a lot
+function ii()
+{
+    echo -e "\nYou are logged on to ${ECHOG}$(hostname)$NC"
+    echo -e "\n${ECHOG}Additionnal information:$NC " ; uname -a
+    echo -e "\n${ECHOG}Users logged on:$NC " ; w -hs |
+             cut -d " " -f1 | sort | uniq
+    echo -e "\n${ECHOG}Current date :$NC " ; date
+    echo -e "\n${ECHOG}Machine stats :$NC " ; uptime
+    echo -e "\n${ECHOG}Memory stats :$NC " ; free
+    echo -e "\n${ECHOG}Diskspace :$NC " ; df / $HOME
+    echo -e "\n${ECHOG}Local IP Address :$NC" ; ip
+    echo ''
+}
+
+# print uptime, host name, number of users, and average load
+function upinfo () {
+    echo -ne "$HOSTNAME uptime is ";
+    uptime | awk /'up/ {print $3,$4,$5,$6,$7,$8,$9,$10}'
+}
 
 
