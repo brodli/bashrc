@@ -248,7 +248,7 @@ alias ip=ipf
 alias http="python -m SimpleHTTPServer"
 
 # Show active http connections
-alias ports='echo -e "\n${BRED}Open connections :$NC "; netstat -pan --inet;'
+alias ports='echo -e "\n${ECHOR}Open connections :$NC "; netstat -pan --inet;'
 
 # ═══════════════════════════════════════
 # SSH ALIASES
@@ -344,7 +344,7 @@ unicode+='⛃⛢⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⛲⛴⛵⛶⛷⛸⛹�
 unicode+='✐✑✒✓✔✕✖✗✘✙✚✛✜✝✞✟✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯✰✱✲✳✴✵✶✷✸✹✺✻✼✽✾✿❀'
 unicode+='❁❂❃❄❅❆❇❈❉❊❋❌❍❎❏❐❑❒❓❔❕❖❗❟❠❡❢❣❤❥❦❧⟴⟿⤀⤁⤐⤑⤔⤕⤖⤗⤘⤨⤩⤪⤫⤬'
 unicode+='⤭⤮⤯⤰⤱⤲⤼⤽⤾⤿⥀⥁⥂⥃⥄⥅⥆⥇⥈⥉⥊⥋⥌⥍⥎⥏⥐⥑⬒⬓⬔⬕⬖⬗⬘⬙⬚⸮〃〄﴾﴿︽︾﹁﹂﹃﹄﹅'
-unicode+='﹆｟｠⌬⌬⌬⌬◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁⛇⛓⚛⛇⛓⚛⛇⛓⚛⛇⛓⚛'
+unicode+='﹆｟｠⌬⌬⌬⌬◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁◉∰⁂⛃⛁⛇⛓⚛⛇⛓⚛⛇⛓⚛⛇⛓⚛'
 
 # Length of the previous string
 unicodelen=${#unicode}
@@ -472,7 +472,7 @@ function gitbranch()
 {
         git rev-parse --abbrev-ref HEAD 2> /dev/null 1> /dev/null
         if [[ "$?" -eq "0" ]]; then
-            str="⎇ $(git rev-parse --abbrev-ref HEAD | tr -d '$' | tr -d '`')"
+            str=" $(git rev-parse --abbrev-ref HEAD | tr -d '$' | tr -d '`')"
         echo " ${str}"
         fi;
 }
@@ -499,7 +499,12 @@ function bat_p() {
 function bat_t() {
     c=$(\cat /sys/class/power_supply/BAT0/charge_now 2>/dev/null)
     i=$(\cat /sys/class/power_supply/BAT0/current_now 2>/dev/null)
-    echo "$(bc -l <<< "$c/$i")" | cut -c1-5
+    s=$(\cat /sys/class/power_supply/BAT0/status)
+    if [[ "$s" == "Full" ]]; then
+        echo '🔌'
+    else
+        echo "$(bc -l <<< "$c/$i")" | cut -c1-5
+    fi
 }
 
 # Get the current battery status: discharging, charging, or full
