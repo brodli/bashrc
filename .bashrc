@@ -643,14 +643,14 @@ function setprompt() {
     # Anatomy of PS1 Variable:
 
     # LINE 1:
-    # Color of exit status   Number of jobs running
-    # ┃   Rainbow colors     ┃   command # in history      12 hour AM/PM time
-    # ┃   ┃                  ┃   ┃    command # since starting shell  ┃
-    # ┃   ┃                  ┃   ┃    ┃  battery status               ┃
-    # ┃   ┃                  ┃   ┃    ┃  ┃        battery time left   ┃ 
-    # ┃   ┃ self-explanatory ┃   ┃    ┃  ┃ % left ┃     shell version ┃
-    # ┃   ┃        ┃         ┃   ┃    ┃  ┃ ┃      ┃     ┃     ┃       ┃
-    # ▼   ▼       ▼         ▼   ▼   ▼  ▼ ▼      ▼    ▼     ▼       ▼   
+    # Color of exit status  Number of jobs running
+    # ┃   Rainbow colors    ┃   command # in history      12 hour AM/PM time
+    # ┃   ┃                 ┃   ┃  command # since starting shell    ┃
+    # ┃   ┃                 ┃   ┃    ┃   battery status              ┃
+    # ┃   ┃                 ┃   ┃    ┃   ┃         battery time left ┃ 
+    # ┃   ┃ self-explanatory┃   ┃    ┃   ┃   % left  ┃ shell version ┃
+    # ┃   ┃       ┃         ┃   ┃    ┃   ┃      ┃    ┃     ┃         ┃
+    # ▼   ▼       ▼         ▼   ▼    ▼   ▼      ▼    ▼     ▼         ▼   
     # ╭─████ user@hostname 2j !1000/123 ▾50.00% 3.000h bash v4.3.43 12:00PM
 
     # LINE 2:
@@ -658,14 +658,14 @@ function setprompt() {
     #   Human readable runtime for last command           ┃
     # Last command w/ all aliases expanded    ┃           ┃
     #              ┃                          ┃           ┃
-    #              ▼                          ▼          ▼
+    #              ▼                          ▼           ▼
     # ⎬─████ ls --color-auto -lvhs runtime: 5.0ms exit: 0
 
     # LINE 3:
     #                                 User privelege ($ if normal, # if root)
-    #                Current git branch   ┃
-    #     Current working directory   ┃   ┃
-    #                  ┃              ┃   ┃
+    #                Current git branch  ┃
+    #     Current working directory  ┃   ┃
+    #                  ┃             ┃   ┃
     #                  ▼             ▼   ▼
     # ⎬─████ ~/Documents/Project ⎇ dev $ 
 
@@ -684,7 +684,7 @@ function setprompt() {
 
      PS1="${lc}╭─${fir} ${uc}\u${D}${IP3F}@${uc}${hc}\H${D} ${PY4F}\j${IP3F}j"
     PS1+=" !${PY3F}\!${IP3F}/${PY3F}\# ${batstr}${PY1F}\s"
-    PS1+=" ${IP3F}v${PY1F}\V ${PY0F}\@ \n"
+    PS1+=" ${IP3F}v${PY1F}\V ${PY0F}\@ ${PY4F}–—\n"
     PS1+="${lc}⎬─${sec} ${PY3F}${this}${D}${PY4F}runtime: \[${runt}\]"
     PS1+=" ${PY5F}exit: ${le}\n"
     PS1+="${lc}⎬─${fir} ${PY4F}\w${PY1F}\[$(gitbranch)\] ${IP3F}\\$\n"
