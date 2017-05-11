@@ -31,21 +31,26 @@ Just before the prompt, I display a random unicode character. This is completely
 # Environment Variables
 
 ### For i3
+```
 export TERMINAL="gnome-terminal"
+```
 
 ### For git
+```
 export VISUAL=nano
 export EDITOR="$VISUAL"
+```
 
 In addition, the PATH variable is set in the bashrc, for convenient editing.
 
 # bash Options
-
+```
 set -o ignoreeof
 set completion-ignore-case On
 shopt -s cdspell
 shopt -s checkwinsize
 shopt -s autocd
+```
 
 # Complete List of Functions
 ```
