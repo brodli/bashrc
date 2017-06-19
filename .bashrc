@@ -122,9 +122,12 @@ alias l.='ls -d */'
 alias sizesort="ls -alSr | tr -s ' ' | cut -d ' ' -f 5,9"
 # typo correction
 alias l='ls'
-alias sl="ls"
-alias l="ls"
-alias s="ls"
+alias sl='ls'
+alias l='ls'
+alias s='ls'
+
+# For fun: the ls ligature
+alias ʪ='ls'
 
 # Custom colors for ls
 LS_COLORS=$LS_COLORS:'di=0;95:ln=0;35:ex=0;93'
