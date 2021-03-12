@@ -17,7 +17,7 @@ export TERMINAL="gnome-terminal"
 # Modify path here:
 PATH="/usr/local/bin:/opt/texbin:/usr/lib64/qt-3.3/bin:/usr/lib64/ccache"
 PATH+=":/usr/local/sbin:/usr/bin:/usr/sbin:/home/M/.local/bin:/home/M/bin"
-PATH+=":/home/M/Scripts/Customization/"
+PATH+=":/home/M/Scripts/Customization/:/bin/:/snap/bin/"
 export PATH
 
 # Editor for git and other commands
